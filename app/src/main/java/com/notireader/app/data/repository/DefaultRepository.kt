@@ -1,5 +1,6 @@
 package com.notireader.app.data.repository
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.map
 import com.notireader.app.data.database.MessageDao
@@ -34,6 +35,13 @@ class DefaultRepository(
     }
 
     override suspend fun onWhatsAppNotificationReceived(message: MessageModel) {
+        Log.d("xyz", "onWhatsAppNotificationReceived: $message")
         insertMessage(message)
+    }
+
+    override fun getMessagesForSender(sender: String): LiveData<List<MessageModel>> {
+        return messageDao.getMessagesForSender(sender).map { messageEntities ->
+            messageEntities.map { it.toMessageModel() }
+        }
     }
 }

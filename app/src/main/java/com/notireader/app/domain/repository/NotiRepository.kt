@@ -8,4 +8,5 @@ interface NotiRepository {
     suspend fun insertMessage(message: MessageModel)
     suspend fun onWhatsAppNotificationReceived(message: MessageModel)
     suspend fun markMessageAsDeletedByDetails(sender: String, message: String, timestamp: Long)
+    fun getMessagesForSender(sender: String): LiveData<List<MessageModel>>
 }

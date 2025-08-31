@@ -15,4 +15,7 @@ interface MessageDao {
 
     @Query("UPDATE messages SET isDeleted = 1 WHERE sender = :sender AND message = :message AND timestamp = :timestamp")
     suspend fun markAsDeletedByDetails(sender: String, message: String, timestamp: Long)
+
+    @Query("SELECT * FROM messages WHERE sender = :sender ORDER BY timestamp DESC")
+    fun getMessagesForSender(sender: String): LiveData<List<MessageEntity>>
 }
