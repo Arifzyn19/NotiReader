@@ -66,5 +66,6 @@ dependencies {
     ksp(libs.hilt.android.compiler)
 
     api(libs.carbon)
+    implementation(libs.glide)
     implementation(libs.androidx.viewpager2)
 }

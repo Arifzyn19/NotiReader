@@ -19,6 +19,31 @@
             android:textSize="16sp"
             android:textColor="@android:color/black" />
 
+        <ImageView
+            android:id="@+id/mediaImageView"
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            android:layout_marginTop="8dp"
+            android:contentDescription="image"
+            android:scaleType="centerCrop"
+            android:visibility="gone" />
+
+        <Button
+            android:id="@+id/playButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Play"
+            android:layout_marginTop="8dp"
+            android:visibility="gone" />
+
+        <Button
+            android:id="@+id/openDocButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Open"
+            android:layout_marginTop="8dp"
+            android:visibility="gone" />
+
         <TextView
             android:id="@+id/timeStamp"
             android:layout_width="wrap_content"
@@ -27,4 +52,3 @@
             android:textColor="@android:color/darker_gray" />
     </LinearLayout>
 </androidx.cardview.widget.CardView>
-

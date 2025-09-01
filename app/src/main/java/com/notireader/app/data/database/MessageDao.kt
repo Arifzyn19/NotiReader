@@ -18,4 +18,7 @@ interface MessageDao {
 
     @Query("SELECT * FROM messages WHERE sender = :sender ORDER BY timestamp DESC")
     fun getMessagesForSender(sender: String): LiveData<List<MessageEntity>>
+
+    @Query("SELECT COUNT(*) FROM messages WHERE sender = :sender AND message = :message AND ABS(timestamp - :timestamp) < 10000")
+    suspend fun countSimilarMessages(sender: String, message: String, timestamp: Long): Int
 }

@@ -1,8 +1,11 @@
 package com.notireader.app.presentation.view_chat_screen_activity
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
+import androidx.core.net.toUri
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.notireader.app.databinding.ItemMessageBinding
 import com.notireader.app.domain.models.MessageModel
 
@@ -22,7 +25,61 @@ class ViewChatAdapter(private val messages: List<MessageModel>) : RecyclerView.A
         fun bind(message: MessageModel) {
             binding.messageText.text = message.message
             binding.timeStamp.text = message.timestamp.toString()
+            val mediaPath = message.mediaPath
+            val context = binding.root.context
+            // Hide all media-related views by default
+            binding.mediaImageView.visibility = View.GONE
+            binding.playButton.visibility = View.GONE
+            binding.openDocButton.visibility = View.GONE
+
+            if (mediaPath != null) {
+                val lower = mediaPath.lowercase()
+                when {
+                    lower.endsWith(".jpg") || lower.endsWith(".jpeg") || lower.endsWith(".png") || lower.endsWith(".webp") -> {
+                        binding.mediaImageView.visibility = View.VISIBLE
+                        Glide.with(context).load(mediaPath.toUri()).into(binding.mediaImageView)
+                    }
+
+                    lower.endsWith(".gif") -> {
+                        binding.mediaImageView.visibility = View.VISIBLE
+                        Glide.with(context).asGif().load(mediaPath.toUri()).into(binding.mediaImageView)
+                    }
+
+                    lower.endsWith(".mp4") || lower.endsWith(".3gp") || lower.endsWith(".mkv") -> {
+                        binding.playButton.visibility = View.VISIBLE
+                        binding.playButton.text = "Play Video"
+                        binding.playButton.setOnClickListener {
+                            val intent = android.content.Intent(android.content.Intent.ACTION_VIEW)
+                            intent.setDataAndType(mediaPath.toUri(), "video/*")
+                            intent.addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                            context.startActivity(intent)
+                        }
+                    }
+
+                    lower.endsWith(".mp3") || lower.endsWith(".opus") || lower.endsWith(".wav") || lower.endsWith(".m4a") -> {
+                        binding.playButton.visibility = View.VISIBLE
+                        binding.playButton.text = "Play Audio"
+                        binding.playButton.setOnClickListener {
+                            val intent = android.content.Intent(android.content.Intent.ACTION_VIEW)
+                            intent.setDataAndType(mediaPath.toUri(), "audio/*")
+                            intent.addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                            context.startActivity(intent)
+                        }
+                    }
+
+                    lower.endsWith(".pdf") || lower.endsWith(".doc") || lower.endsWith(".docx") || lower.endsWith(".xls") || lower.endsWith(".xlsx") || lower.endsWith(
+                        ".ppt"
+                    ) || lower.endsWith(".pptx") || lower.endsWith(".txt") -> {
+                        binding.openDocButton.visibility = View.VISIBLE
+                        binding.openDocButton.setOnClickListener {
+                            val intent = android.content.Intent(android.content.Intent.ACTION_VIEW)
+                            intent.setDataAndType(mediaPath.toUri(), "application/*")
+                            intent.addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                            context.startActivity(intent)
+                        }
+                    }
+                }
+            }
         }
     }
 }
-

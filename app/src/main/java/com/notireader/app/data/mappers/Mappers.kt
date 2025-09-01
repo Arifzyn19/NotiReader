@@ -9,7 +9,8 @@ fun MessageModel.toMessageEntity(): MessageEntity {
         sender = sender,
         message = message,
         timestamp = timestamp,
-        isDeleted = isDeleted
+        isDeleted = isDeleted,
+        mediaPath = mediaPath
     )
 }
 
@@ -19,6 +20,7 @@ fun MessageEntity.toMessageModel(): MessageModel {
         sender = sender,
         message = message,
         timestamp = timestamp,
-        isDeleted = isDeleted
+        isDeleted = isDeleted,
+        mediaPath = mediaPath
     )
 }

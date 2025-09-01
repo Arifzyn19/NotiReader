@@ -2,6 +2,7 @@
 agp = "8.11.1"
 billingKtx = "8.0.0"
 carbon = "0.17.0"
+glide = "4.16.0" # do not update this
 hiltAndroid = "2.57.1"
 kotlin = "2.2.10"
 coreKtx = "1.17.0"
@@ -31,6 +32,7 @@ androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "
 androidx-viewpager2 = { module = "androidx.viewpager2:viewpager2", version.ref = "viewpager2" }
 billing-ktx = { module = "com.android.billingclient:billing-ktx", version.ref = "billingKtx" }
 carbon = { module = "tk.zielony:carbon", version.ref = "carbon" }
+glide = { module = "com.github.bumptech.glide:glide", version.ref = "glide" }
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroid" }
 hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hiltAndroid" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }

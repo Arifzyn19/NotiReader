@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase
 
 @Database(
     entities = [MessageEntity::class],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 abstract class NotiDatabase : RoomDatabase() {
@@ -25,7 +25,9 @@ abstract class NotiDatabase : RoomDatabase() {
                     context.applicationContext,
                     NotiDatabase::class.java,
                     DB_NAME
-                ).build().also { INSTANCE = it }
+                )
+                    .fallbackToDestructiveMigration(true)
+                    .build().also { INSTANCE = it }
             }
         }
     }

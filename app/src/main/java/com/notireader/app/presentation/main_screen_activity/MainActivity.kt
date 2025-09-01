@@ -1,20 +1,17 @@
 package com.notireader.app.presentation.main_screen_activity
 
-import android.Manifest
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.core.content.edit
+import androidx.core.net.toUri
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.documentfile.provider.DocumentFile
@@ -34,6 +31,7 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         private const val REQUEST_CODE_OPEN_DOCUMENT_TREE = 102
+        private const val REQUEST_CODE_NOTIFICATION_LISTENER_SETTINGS = 103
         private const val PREFS_NAME = "noti_reader_prefs"
         private const val KEY_FOLDER_URI = "folder_uri"
     }
@@ -90,16 +88,6 @@ class MainActivity : AppCompatActivity() {
         checkAndRequestNotificationPermission()
     }
 
-    override fun onResume() {
-        super.onResume()
-        val cn = android.content.ComponentName(this, "com.notireader.app.domain.services.WhatsAppNotificationListener")
-        val flat = Settings.Secure.getString(contentResolver, "enabled_notification_listeners")
-        val enabled = flat != null && flat.contains(cn.flattenToString())
-        if (enabled) {
-//            checkAndRequestStoragePermission()
-        }
-    }
-
     private fun checkAndRequestNotificationPermission() {
         val cn = android.content.ComponentName(this, "com.notireader.app.domain.services.WhatsAppNotificationListener")
         val flat = Settings.Secure.getString(contentResolver, "enabled_notification_listeners")
@@ -107,70 +95,67 @@ class MainActivity : AppCompatActivity() {
         if (!enabled) {
             val intent = Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            startActivity(intent)
-        }
-    }
-
-    private fun checkAndRequestStoragePermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            val permissions = mutableListOf<String>()
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_IMAGES) != PackageManager.PERMISSION_GRANTED) {
-                permissions.add(Manifest.permission.READ_MEDIA_IMAGES)
-            }
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_VIDEO) != PackageManager.PERMISSION_GRANTED) {
-                permissions.add(Manifest.permission.READ_MEDIA_VIDEO)
-            }
-            if (permissions.isNotEmpty()) {
-                ActivityCompat.requestPermissions(this, permissions.toTypedArray(), 101)
-            } else {
-                openDocumentTreeForWhatsAppMedia()
-            }
+            // Use startActivityForResult to get callback when user returns
+            startActivityForResult(intent, REQUEST_CODE_NOTIFICATION_LISTENER_SETTINGS)
         } else {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), 101)
-            } else {
-                openDocumentTreeForWhatsAppMedia()
-            }
+            // If already enabled, request folder permission immediately
+            checkAndRequestFolderPermission()
         }
     }
 
-    private fun openDocumentTreeForWhatsAppMedia() {
-        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
-        intent.addFlags(
-            Intent.FLAG_GRANT_READ_URI_PERMISSION or
-                    Intent.FLAG_GRANT_WRITE_URI_PERMISSION or
-                    Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION
-        )
-        startActivityForResult(intent, REQUEST_CODE_OPEN_DOCUMENT_TREE)
+    private fun checkAndRequestFolderPermission() {
+        val prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+        val savedUri = prefs.getString(KEY_FOLDER_URI, null)
+
+        if (savedUri == null) {
+            val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE).apply {
+                putExtra(
+                    "android.provider.extra.INITIAL_URI",
+                    "content://com.android.externalstorage.documents/document/primary:Android/media".toUri()
+                )
+                addFlags(
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION or
+                            Intent.FLAG_GRANT_WRITE_URI_PERMISSION or
+                            Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION
+                )
+            }
+            startActivityForResult(intent, REQUEST_CODE_OPEN_DOCUMENT_TREE)
+        } else {
+            Log.d("xyz", "Already have folder permission: $savedUri")
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == REQUEST_CODE_OPEN_DOCUMENT_TREE && resultCode == Activity.RESULT_OK) {
-            val treeUri: Uri? = data?.data
-            if (treeUri != null) {
-                contentResolver.takePersistableUriPermission(
-                    treeUri,
-                    Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-                )
-                saveFolderUri(treeUri.toString())
-                // Example: list files
-                val docFile = DocumentFile.fromTreeUri(this, treeUri)
-                docFile?.listFiles()?.forEach {
-                    Log.d("Files", "File: ${it.name}")
+        if (requestCode == REQUEST_CODE_NOTIFICATION_LISTENER_SETTINGS) {
+            // After returning from notification listener settings, check and request folder permission
+            checkAndRequestFolderPermission()
+        }
+        if (requestCode == REQUEST_CODE_OPEN_DOCUMENT_TREE) {
+            if (resultCode == Activity.RESULT_OK) {
+                val treeUri: Uri? = data?.data
+                if (treeUri != null) {
+                    contentResolver.takePersistableUriPermission(
+                        treeUri,
+                        Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                    )
+
+                    getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit {
+                        putString(KEY_FOLDER_URI, treeUri.toString())
+                    }
+
+                    Log.d("xyz", "Folder permission granted: $treeUri")
+
+                    val docFile = DocumentFile.fromTreeUri(this, treeUri)
+                    docFile?.listFiles()?.forEach {
+                        Log.d("xyz", "File: ${it.name}")
+                    }
                 }
+            } else {
+                Toast.makeText(this, "Something went wrong", Toast.LENGTH_SHORT).show()
+                Log.i("xyz", "User cancelled folder picker or something went wrong.")
             }
         }
-    }
-
-    private fun saveFolderUri(uri: String) {
-        val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        prefs.edit { putString(KEY_FOLDER_URI, uri) }
-    }
-
-    private fun getSavedFolderUri(): String? {
-        val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        return prefs.getString(KEY_FOLDER_URI, null)
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {

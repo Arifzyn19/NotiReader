@@ -29,6 +29,7 @@ class DefaultRepository(
     }
 
     override suspend fun markMessageAsDeletedByDetails(sender: String, message: String, timestamp: Long) {
+        // TODO: implement delete logic 
         withContext(Dispatchers.IO) {
             messageDao.markAsDeletedByDetails(sender, message, timestamp)
         }
@@ -36,12 +37,23 @@ class DefaultRepository(
 
     override suspend fun onWhatsAppNotificationReceived(message: MessageModel) {
         Log.d("xyz", "onWhatsAppNotificationReceived: $message")
-        insertMessage(message)
+        val count = messageDao.countSimilarMessages(message.sender, message.message, message.timestamp)
+        if (count == 0) {
+            insertMessage(message)
+        } else {
+            Log.d("xyz", "Duplicate message detected, skipping insert: $message")
+        }
     }
 
     override fun getMessagesForSender(sender: String): LiveData<List<MessageModel>> {
         return messageDao.getMessagesForSender(sender).map { messageEntities ->
             messageEntities.map { it.toMessageModel() }
+        }
+    }
+
+    override suspend fun isDuplicateMessage(sender: String, message: String, timestamp: Long): Boolean {
+        return withContext(Dispatchers.IO) {
+            messageDao.countSimilarMessages(sender, message, timestamp) > 0
         }
     }
 }
