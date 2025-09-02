@@ -7,6 +7,17 @@
     android:layout_height="match_parent"
     tools:context=".presentation.view_chat_screen_activity.ViewChatActivity">
 
+    <ImageButton
+        android:id="@+id/backButton"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="@android:color/transparent"
+        android:src="@android:drawable/ic_media_previous"
+        android:contentDescription="Back"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_margin="8dp" />
+
     <TextView
         android:id="@+id/senderTitle"
         android:layout_width="0dp"
@@ -28,4 +39,3 @@
         app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
-

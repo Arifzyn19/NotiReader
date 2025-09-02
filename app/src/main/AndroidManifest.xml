@@ -17,6 +17,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.NotiReader">
         <activity
+            android:name=".presentation.guide_screen_activity.GuideActivity"
+            android:exported="false" />
+        <activity
             android:name=".presentation.view_chat_screen_activity.ViewChatActivity"
             android:exported="false" />
 

@@ -16,8 +16,7 @@
             android:id="@+id/messageText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="16sp"
-            android:textColor="@android:color/black" />
+            android:textSize="16sp" />
 
         <ImageView
             android:id="@+id/mediaImageView"
@@ -32,16 +31,16 @@
             android:id="@+id/playButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Play"
             android:layout_marginTop="8dp"
+            android:text="Play"
             android:visibility="gone" />
 
         <Button
             android:id="@+id/openDocButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Open"
             android:layout_marginTop="8dp"
+            android:text="Open"
             android:visibility="gone" />
 
         <TextView
@@ -49,6 +48,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="12sp"
-            android:textColor="@android:color/darker_gray" />
+            android:textColor="?android:textColorSecondary" />
     </LinearLayout>
 </androidx.cardview.widget.CardView>

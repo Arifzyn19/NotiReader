@@ -2,4 +2,16 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <!--Dark mode colors-->
+    <color name="deep_charcoal">#0D1117</color>
+    <color name="elevated_surface_grey">#21262D</color>
+    <color name="electric_blue">#58A6FF</color>
+    <color name="warm_white">#F0F6FC</color>
+    <color name="muted_silver">#8B949E</color>
+    <!--Light mode colors-->
+    <color name="crystalline_blue_accent">#4285F4</color>
+    <color name="ethereal_white_foundation">#FAFBFC</color>
+    <color name="luminous_lavender">#E8EAED</color>
+    <color name="sophisticated_slate">#5F6368</color>
+    <color name="whisper_gray_neutral">#9AA0A6</color>
 </resources>

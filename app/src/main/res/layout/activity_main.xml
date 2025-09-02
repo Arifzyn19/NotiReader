@@ -26,16 +26,29 @@
                 android:id="@+id/hamBurgerButton"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
+                android:layout_marginEnd="6dp"
                 android:background="@android:color/transparent"
                 android:contentDescription="open_drawer"
                 android:src="@android:drawable/ic_menu_sort_by_size" />
 
             <TextView
                 android:id="@+id/name"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:text="WhatsApp"
                 android:textSize="26sp" />
+
+            <ImageButton
+                android:id="@+id/guideButton"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:padding="12dp"
+                android:background="@android:color/transparent"
+                android:contentDescription="guide"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_help"
+                app:tint="@color/muted_silver" />
         </LinearLayout>
 
         <androidx.viewpager2.widget.ViewPager2
@@ -52,6 +65,8 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="start"
+        android:background="?attr/colorSurface"
+        app:headerLayout="@layout/drawer_header"
         app:menu="@menu/drawer_menu" />
 
 </androidx.drawerlayout.widget.DrawerLayout>

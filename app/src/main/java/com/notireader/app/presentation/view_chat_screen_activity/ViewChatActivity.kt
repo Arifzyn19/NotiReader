@@ -31,5 +31,8 @@ class ViewChatActivity : AppCompatActivity() {
         viewModel.getMessagesForSender(senderName).observe(this, Observer { messages ->
             binding.messageRecyclerView.adapter = ViewChatAdapter(messages)
         })
+        binding.backButton.setOnClickListener {
+            finish()
+        }
     }
 }

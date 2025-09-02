@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="120dp"
+    android:orientation="vertical"
+    android:gravity="bottom|start"
+    android:paddingStart="24dp"
+    android:paddingBottom="24dp">
+
+    <TextView
+        android:id="@+id/drawer_app_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="NotiReader"
+        android:textAppearance="@style/TextAppearance.Material3.HeadlineMedium"
+        android:textStyle="bold" />
+
+</LinearLayout>
+

@@ -1,14 +1,13 @@
 package com.notireader.app.domain.services
 
-import android.content.Context
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.util.Log
 import androidx.core.net.toUri
 import androidx.documentfile.provider.DocumentFile
-import com.notireader.app.data.util.MediaCopyUtil
 import com.notireader.app.domain.models.MessageModel
 import com.notireader.app.domain.repository.NotiRepository
+import com.notireader.app.util.MediaCopyUtil
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -29,9 +28,40 @@ class WhatsAppNotificationListener : NotificationListenerService() {
                 Log.d("xyz", "Skipping group summary notification: id=${sbn.id}, key=${sbn.key}")
                 return
             }
-            val title = sbn.notification.extras.getString("android.title") ?: ""
-            val message = sbn.notification.extras.getCharSequence("android.text")?.toString() ?: ""
+            var title = sbn.notification.extras.getString("android.title") ?: ""
+            var message = sbn.notification.extras.getCharSequence("android.text")?.toString() ?: ""
             val timeStamp = sbn.postTime
+
+            val newMsgRegex = Regex("\\d+ new messages", RegexOption.IGNORE_CASE)
+            if (newMsgRegex.containsMatchIn(title) || newMsgRegex.containsMatchIn(message) || title.equals("WhatsApp", ignoreCase = true)) {
+                Log.d("xyz", "Filtered out notification: title=$title, message=$message")
+                return
+            }
+
+            if (":" in title) {
+                val parts = title.split(":", limit = 2)
+                if (parts.size == 2) {
+                    val groupName = parts[0].replace(Regex("\\(.*messages.*\\)", RegexOption.IGNORE_CASE), "").trim()
+                    val senderName = parts[1].trim()
+                    message = if (message.startsWith(senderName)) message else "$senderName: $message"
+                    title = groupName
+                }
+            } else if (title.contains("(") && title.contains("new messages", ignoreCase = true)) {
+                title = title.replace(Regex("\\(.*new messages.*\\)", RegexOption.IGNORE_CASE), "").trim()
+            }
+
+            if (newMsgRegex.matches(message.trim())) {
+                Log.d("xyz", "Filtered out notification with 'new messages' as message: $message")
+                return
+            }
+
+            if (message.trim().equals("This message was deleted", ignoreCase = true)) {
+                /*CoroutineScope(Dispatchers.IO).launch {
+                    notiRepository.markMessageAsDeletedByDetails(title, message, timeStamp)
+                }*/
+                Log.d("xyz", "Filtered out deleted message notification: $message")
+                return
+            }
 
             Log.d("xyz", "Notification details: title=$title, message=$message, timeStamp=$timeStamp")
 
@@ -55,7 +85,6 @@ class WhatsAppNotificationListener : NotificationListenerService() {
             }
             Log.d("xyz", "Matched media type: ${matchedType?.key} -> ${matchedType?.value}")
             CoroutineScope(Dispatchers.IO).launch {
-                // Deduplication: check for similar message before processing
                 val isDuplicate = notiRepository.isDuplicateMessage(title, message, timeStamp)
                 if (isDuplicate) {
                     Log.d("xyz", "Duplicate notification detected, skipping processing: sender=$title, message=$message, timestamp=$timeStamp")
@@ -64,7 +93,7 @@ class WhatsAppNotificationListener : NotificationListenerService() {
                 var mediaPathLocal: String? = null
                 if (matchedType != null) {
                     try {
-                        val prefs = getSharedPreferences("noti_reader_prefs", Context.MODE_PRIVATE)
+                        val prefs = getSharedPreferences("noti_reader_prefs", MODE_PRIVATE)
                         val waMediaUriString = prefs.getString("folder_uri", null)
                         Log.d("xyz", "waMediaUriString: $waMediaUriString")
                         if (waMediaUriString != null) {

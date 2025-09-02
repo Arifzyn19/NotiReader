@@ -1,6 +1,7 @@
 package com.notireader.app.presentation.main_screen_activity
 
 import android.app.Activity
+import android.content.ComponentName
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -48,6 +49,13 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
+        // Only check and show bottom sheet, do not request directly
+        if (!isNotificationServiceEnabled()) {
+            NotificationPermissionBottomSheet().show(supportFragmentManager, "notification_permission")
+        } else if (!isStoragePermissionGranted()) {
+            StoragePermissionBottomSheet().show(supportFragmentManager, "storage_permission")
+        }
+
         val fragments = listOf(
             WhatsappFragment.newInstance(),
             BusinessFragment.newInstance()
@@ -85,7 +93,21 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
-        checkAndRequestNotificationPermission()
+        binding.guideButton.setOnClickListener {
+            val intent = Intent(this, com.notireader.app.presentation.guide_screen_activity.GuideActivity::class.java)
+            startActivity(intent)
+        }
+    }
+
+    private fun isNotificationServiceEnabled(): Boolean {
+        val cn = ComponentName(this, com.notireader.app.domain.services.WhatsAppNotificationListener::class.java)
+        val flat = Settings.Secure.getString(contentResolver, "enabled_notification_listeners")
+        return flat != null && flat.contains(cn.flattenToString())
+    }
+
+    private fun isStoragePermissionGranted(): Boolean {
+        val prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+        return prefs.getString(KEY_FOLDER_URI, null) != null
     }
 
     private fun checkAndRequestNotificationPermission() {
@@ -103,7 +125,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun checkAndRequestFolderPermission() {
+    internal fun checkAndRequestFolderPermission() {
         val prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
         val savedUri = prefs.getString(KEY_FOLDER_URI, null)
 

@@ -1,8 +1,15 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
     <!-- Base application theme. -->
     <style name="Base.Theme.NotiReader" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="colorPrimary">@color/crystalline_blue_accent</item>
+        <item name="colorOnPrimary">@color/ethereal_white_foundation</item>
+        <item name="colorSurface">@color/luminous_lavender</item>
+        <item name="android:colorBackground">@color/ethereal_white_foundation</item>
+        <item name="android:windowBackground">@color/ethereal_white_foundation</item>
+        <item name="background">@color/ethereal_white_foundation</item>
+        <item name="colorOnSurface">@color/sophisticated_slate</item>
+        <item name="colorOutline">@color/whisper_gray_neutral</item>
     </style>
 
     <style name="Theme.NotiReader" parent="Base.Theme.NotiReader" />

@@ -1,4 +1,4 @@
-package com.notireader.app.data.util
+package com.notireader.app.util
 
 import android.content.Context
 import android.net.Uri
