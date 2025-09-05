@@ -6,12 +6,18 @@ import android.util.Log
 import androidx.documentfile.provider.DocumentFile
 
 object MediaCopyUtil {
-    fun copyMediaFile(context: Context, sourceUri: Uri, destFolderUri: Uri, matchedType: String, newFileName: String): Uri? {
+    fun copyMediaFile(context: Context, sourceUri: Uri, destFolderUri: Uri, matchedType: String, newFileName: String, sourcePackage: String): Uri? {
         return try {
             val destFolder = DocumentFile.fromTreeUri(context, destFolderUri)
             Log.i("xyz", "destFolder: ${destFolder?.uri}")
-            val rootFolder = getOrCreateSubDir(destFolder, "com.notireader.app")
-            val rootDir = getOrCreateSubDir(rootFolder, "NotiReader_WhatsApp_Media")
+            // Use package name to create separate root folders for WhatsApp and WhatsApp Business
+            val rootFolderName = when (sourcePackage) {
+                "com.whatsapp" -> "NotiReader_WhatsApp_Media"
+                "com.whatsapp.w4b" -> "NotiReader_Business_Media"
+                else -> "NotiReader_Other_Media"
+            }
+            val appFolder = getOrCreateSubDir(destFolder, "com.notireader.app")
+            val rootDir = getOrCreateSubDir(appFolder, rootFolderName)
             val destDir = getOrCreateSubDir(rootDir, matchedType)
             if (destDir != null) {
                 val mimeType = context.contentResolver.getType(sourceUri) ?: "application/octet-stream"
