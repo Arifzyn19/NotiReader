@@ -132,6 +132,8 @@ class MainActivity : AppCompatActivity() {
             NotificationPermissionBottomSheet().show(supportFragmentManager, "notification_permission")
         } else if (!isStoragePermissionGranted()) {
             StoragePermissionBottomSheet().show(supportFragmentManager, "storage_permission")
+        } else {
+            validateSavedFolderPermission()
         }
         if (!PremiumManager.isPremiumUnlocked(this)) {
             AdManager.show(
@@ -153,6 +155,27 @@ class MainActivity : AppCompatActivity() {
     private fun isStoragePermissionGranted(): Boolean {
         val prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
         return prefs.getString(KEY_FOLDER_URI, null) != null
+    }
+
+    private fun validateSavedFolderPermission() {
+        val prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+        val savedUri = prefs.getString(KEY_FOLDER_URI, null)
+
+        if (savedUri != null) {
+            val requiredUri = "content://com.android.externalstorage.documents/tree/primary:Android/media"
+            val decodedSavedUri = Uri.decode(savedUri)
+            val decodedRequiredUri = Uri.decode(requiredUri)
+            if (decodedSavedUri == decodedRequiredUri || decodedSavedUri.endsWith("primary:Android/media")) {
+                Log.d("xyz", "validateSavedFolderPermission: picked up correct folder $savedUri")
+            } else {
+                Log.w("xyz", "Invalid folder saved: $savedUri, forcing re-pick.")
+                prefs.edit { remove(KEY_FOLDER_URI) }
+                Toast.makeText(this, "Please select only Android/media folder", Toast.LENGTH_SHORT).show()
+                checkAndRequestFolderPermission()
+            }
+        } else {
+            checkAndRequestFolderPermission()
+        }
     }
 
     internal fun checkAndRequestFolderPermission() {
