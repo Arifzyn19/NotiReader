@@ -43,20 +43,20 @@
                 android:id="@+id/go_premium_btn"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
-                android:padding="6dp"
                 android:background="@android:color/transparent"
                 android:contentDescription="go premium"
+                android:padding="6dp"
                 android:scaleType="fitCenter"
                 android:src="@drawable/ic_crown"
-                app:tint="@color/muted_silver" />
+                app:tint="@color/whatsapp_primary_green" />
 
             <ImageButton
                 android:id="@+id/guideButton"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
-                android:padding="12dp"
                 android:background="@android:color/transparent"
                 android:contentDescription="guide"
+                android:padding="12dp"
                 android:scaleType="fitCenter"
                 android:src="@drawable/ic_help"
                 app:tint="@color/muted_silver" />

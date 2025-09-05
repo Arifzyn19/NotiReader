@@ -14,4 +14,23 @@
     <color name="luminous_lavender">#E8EAED</color>
     <color name="sophisticated_slate">#5F6368</color>
     <color name="whisper_gray_neutral">#9AA0A6</color>
+
+    <!-- Primary Brand Colors -->
+    <color name="whatsapp_primary_green">#25D366</color>
+    <color name="whatsapp_secondary_green">#128C7E</color>
+    <color name="whatsapp_dark_green">#075E54</color>
+    <color name="whatsapp_light_green">#DCF8C6</color>
+
+    <!-- Text Colors - Light Mode -->
+    <color name="text_primary_light">#111827</color>
+    <color name="text_secondary_light">#4B5563</color>
+    <color name="text_tertiary_light">#6B7280</color>
+    <color name="text_hint_light">#9CA3AF</color>
+
+    <!-- Text Colors - Dark Mode -->
+    <color name="text_primary_dark">#F9FAFB</color>
+    <color name="text_secondary_dark">#D1D5DB</color>
+    <color name="text_tertiary_dark">#9CA3AF</color>
+    <color name="text_hint_dark">#6B7280</color>
+
 </resources>

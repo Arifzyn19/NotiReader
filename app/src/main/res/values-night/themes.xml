@@ -6,11 +6,15 @@
         <item name="android:windowBackground">@color/deep_charcoal</item>
         <item name="background">@color/deep_charcoal</item>
         <item name="colorSurface">@color/elevated_surface_grey</item>
-        <item name="colorPrimary">@color/electric_blue</item>
+        <item name="colorPrimary">@color/whatsapp_primary_green</item>
         <item name="colorOnSurface">@color/warm_white</item>
-        <item name="colorSecondary">@color/muted_silver</item>
+        <item name="colorSecondary">@color/whatsapp_secondary_green</item>
         <item name="android:textColor">@color/warm_white</item>
-        <item name="android:textColorPrimary">@color/warm_white</item>
-        <item name="android:textColorSecondary">@color/muted_silver</item>
+        <item name="android:textColorPrimary">@color/text_primary_dark</item>
+        <item name="android:textColorSecondary">@color/text_secondary_dark</item>
+        <item name="rippleColor">@color/whatsapp_primary_green</item>
+        <item name="carbon_rippleColor">@color/whatsapp_primary_green</item>
+        <item name="strokeColor">@color/whatsapp_primary_green</item>
+        <item name="android:strokeColor">@color/whatsapp_primary_green</item>
     </style>
 </resources>

@@ -12,7 +12,6 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="56dp"
-        android:background="#1f2937"
         android:paddingStart="16dp"
         android:paddingEnd="16dp">
 
@@ -20,13 +19,13 @@
             android:id="@+id/cross_button"
             android:layout_width="24dp"
             android:layout_height="24dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
             android:clickable="true"
             android:contentDescription="cross button"
             android:focusable="true"
-            android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true"
             android:src="@android:drawable/ic_menu_close_clear_cancel"
-            app:tint="#ffffff" />
+            app:tint="@color/muted_silver" />
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -46,7 +45,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Premium"
-                android:textColor="#ffffff"
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
@@ -70,7 +68,7 @@
                 android:layout_height="80dp"
                 android:layout_gravity="center"
                 android:layout_margin="20dp"
-                android:background="@color/electric_blue"
+                android:background="@color/whatsapp_dark_green"
                 android:padding="12dp"
                 android:src="@drawable/ic_crown"
                 app:carbon_cornerRadius="40dp" />
@@ -78,20 +76,19 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
+                android:layout_marginBottom="12dp"
                 android:gravity="center"
                 android:text="Get Premium"
-                android:textColor="#ffffff"
                 android:textSize="28sp"
                 android:textStyle="bold" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
+                android:layout_marginBottom="10dp"
                 android:gravity="center"
                 android:text="Enjoy a clean and distraction-free experience."
-                android:textColor="#3b82f6"
+                android:textColor="@color/whatsapp_primary_green"
                 android:textSize="16sp" />
 
             <TextView
@@ -100,7 +97,7 @@
                 android:layout_marginBottom="32dp"
                 android:gravity="center"
                 android:text="One simple plan - No hidden charges, cancel anytime."
-                android:textColor="#9ca3af"
+                android:textColor="@color/muted_silver"
                 android:textSize="14sp" />
 
             <LinearLayout
@@ -116,7 +113,7 @@
                     android:background="@drawable/glass_background"
                     android:padding="6dp"
                     android:src="@drawable/ic_block"
-                    app:carbon_backgroundTint="@color/electric_blue"
+                    app:carbon_backgroundTint="@color/whatsapp_secondary_green"
                     app:carbon_cornerRadius="20dp" />
 
                 <LinearLayout
@@ -158,8 +155,9 @@
                     android:background="@drawable/glass_background"
                     android:padding="6dp"
                     android:src="@drawable/ic_thunder"
-                    app:carbon_backgroundTint="@color/electric_blue"
-                    app:carbon_cornerRadius="20dp" />
+                    app:carbon_backgroundTint="@color/whatsapp_secondary_green"
+                    app:carbon_cornerRadius="20dp"
+                    app:carbon_tint="@color/whatsapp_primary_green" />
 
                 <LinearLayout
                     android:layout_width="0dp"
@@ -200,8 +198,9 @@
                     android:background="@drawable/glass_background"
                     android:padding="6dp"
                     android:src="@drawable/ic_heart"
-                    app:carbon_backgroundTint="@color/electric_blue"
-                    app:carbon_cornerRadius="20dp" />
+                    app:carbon_backgroundTint="@color/whatsapp_secondary_green"
+                    app:carbon_cornerRadius="20dp"
+                    app:carbon_tint="@color/whatsapp_light_green" />
 
                 <LinearLayout
                     android:layout_width="0dp"
@@ -234,12 +233,12 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="24dp"
                 android:background="@drawable/glass_background"
-                android:backgroundTint="@color/electric_blue"
+                android:backgroundTint="@color/whatsapp_secondary_green"
                 android:orientation="vertical"
                 android:padding="20dp"
                 app:carbon_cornerRadius="12dp"
-                app:carbon_stroke="@color/electric_blue"
-                app:carbon_strokeWidth="2dp">
+                app:carbon_stroke="@android:color/transparent"
+                app:carbon_strokeWidth="1dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -253,13 +252,12 @@
                         android:layout_height="20dp"
                         android:layout_marginEnd="8dp"
                         android:src="@drawable/ic_block"
-                        app:tint="#3b82f6" />
+                        app:tint="@color/whatsapp_secondary_green" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Remove Ads"
-                        android:textColor="#ffffff"
                         android:textSize="18sp"
                         android:textStyle="bold" />
 
@@ -276,7 +274,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="₹149"
-                        android:textColor="@color/carbon_blue_700"
+                        android:textColor="@color/whatsapp_primary_green"
                         android:textSize="24sp"
                         android:textStyle="bold" />
 
@@ -284,7 +282,6 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text=" / month"
-                        android:textColor="#9ca3af"
                         android:textSize="16sp" />
 
                 </LinearLayout>
@@ -294,9 +291,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="48dp"
                     android:layout_marginBottom="16dp"
-                    android:background="@color/electric_blue"
+                    android:background="@color/whatsapp_dark_green"
                     android:text="Get Premium Now"
-                    android:textColor="#ffffff"
                     android:textSize="16sp"
                     android:textStyle="bold"
                     app:carbon_cornerRadius="12dp" />
@@ -310,29 +306,30 @@
                     <ImageView
                         android:layout_width="16dp"
                         android:layout_height="16dp"
-                        android:layout_marginEnd="8dp"
+                        android:layout_marginEnd="6dp"
                         android:src="@drawable/ic_shield"
-                        app:tint="#9ca3af" />
+                        app:tint="@color/muted_silver" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Secure Payment"
-                        android:textColor="#9ca3af"
+                        android:layout_marginEnd="10dp"
+                        android:textColor="@color/muted_silver"
                         android:textSize="12sp" />
 
                     <ImageView
                         android:layout_width="16dp"
                         android:layout_height="16dp"
-                        android:layout_marginHorizontal="8dp"
+                        android:layout_marginEnd="6dp"
                         android:src="@android:drawable/ic_menu_close_clear_cancel"
-                        app:tint="#9ca3af" />
+                        app:tint="@color/muted_silver" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Cancel Anytime"
-                        android:textColor="#9ca3af"
+                        android:textColor="@color/muted_silver"
                         android:textSize="12sp" />
 
                 </LinearLayout>
@@ -345,19 +342,18 @@
                 android:gravity="center"
                 android:orientation="horizontal">
 
-                <ImageView
+                <carbon.widget.ImageView
                     android:layout_width="16dp"
                     android:layout_height="16dp"
                     android:layout_marginEnd="8dp"
-                    android:src="@drawable/ic_heart"
-                    app:tint="#ef4444" />
+                    android:src="@drawable/ic_heart" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     android:text="Your support keeps the app fast, secure, and private."
-                    android:textColor="#9ca3af"
+                    android:textColor="@color/muted_silver"
                     android:textSize="12sp" />
 
             </LinearLayout>

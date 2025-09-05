@@ -15,8 +15,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:navigationIcon="@drawable/ic_arrow_back"
         app:navigationIconTint="@color/muted_silver"
-        app:title="Guide"
-        app:titleTextColor="?attr/colorOnSurface">
+        app:title="Guide">
 
         <!-- Refresh Icon -->
         <!--        <ImageView-->
@@ -57,11 +56,15 @@
                 android:layout_marginBottom="8dp"
                 app:cardBackgroundColor="?attr/colorSurfaceContainer"
                 app:cardCornerRadius="12dp"
-                app:cardElevation="2dp">
+                app:cardElevation="2dp"
+                app:strokeColor="@android:color/transparent"
+                app:strokeWidth="1dp">
 
-                <LinearLayout
+                <carbon.widget.LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:background="@drawable/glass_background"
+                    android:backgroundTint="@color/whatsapp_dark_green"
                     android:orientation="vertical">
 
                     <!-- Dropdown Header -->
@@ -82,7 +85,6 @@
                             android:layout_weight="1"
                             android:text="Enable Notification Access"
                             android:textAppearance="?attr/textAppearanceHeadlineSmall"
-                            android:textColor="?attr/colorOnSurface"
                             android:textSize="18sp"
                             android:textStyle="bold" />
 
@@ -169,7 +171,7 @@
 
                     </LinearLayout>
 
-                </LinearLayout>
+                </carbon.widget.LinearLayout>
 
             </com.google.android.material.card.MaterialCardView>
 
@@ -180,11 +182,15 @@
                 android:layout_marginBottom="8dp"
                 app:cardBackgroundColor="?attr/colorSurfaceContainer"
                 app:cardCornerRadius="12dp"
-                app:cardElevation="2dp">
+                app:cardElevation="2dp"
+                app:strokeColor="@android:color/transparent"
+                app:strokeWidth="1dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:background="@drawable/glass_background"
+                    android:backgroundTint="@color/whatsapp_dark_green"
                     android:orientation="vertical">
 
                     <!-- Dropdown Header -->
@@ -205,7 +211,6 @@
                             android:layout_weight="1"
                             android:text="Allow Access"
                             android:textAppearance="?attr/textAppearanceHeadlineSmall"
-                            android:textColor="?attr/colorOnSurface"
                             android:textSize="18sp"
                             android:textStyle="bold" />
 
@@ -339,11 +344,15 @@
                 android:layout_marginBottom="8dp"
                 app:cardBackgroundColor="?attr/colorSurfaceContainer"
                 app:cardCornerRadius="12dp"
-                app:cardElevation="2dp">
+                app:cardElevation="2dp"
+                app:strokeColor="@android:color/transparent"
+                app:strokeWidth="1dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:background="@drawable/glass_background"
+                    android:backgroundTint="@color/whatsapp_dark_green"
                     android:orientation="vertical">
 
                     <!-- Dropdown Header -->
@@ -364,7 +373,6 @@
                             android:layout_weight="1"
                             android:text="Unmute Notifications"
                             android:textAppearance="?attr/textAppearanceHeadlineSmall"
-                            android:textColor="?attr/colorOnSurface"
                             android:textSize="18sp"
                             android:textStyle="bold" />
 
@@ -455,11 +463,15 @@
                 android:layout_marginBottom="16dp"
                 app:cardBackgroundColor="?attr/colorSurfaceContainer"
                 app:cardCornerRadius="12dp"
-                app:cardElevation="2dp">
+                app:cardElevation="2dp"
+                app:strokeColor="@android:color/transparent"
+                app:strokeWidth="1dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:background="@drawable/glass_background"
+                    android:backgroundTint="@color/whatsapp_dark_green"
                     android:orientation="vertical">
 
                     <!-- Dropdown Header -->
@@ -480,7 +492,6 @@
                             android:layout_weight="1"
                             android:text="Enable Media auto-download"
                             android:textAppearance="?attr/textAppearanceHeadlineSmall"
-                            android:textColor="?attr/colorOnSurface"
                             android:textSize="18sp"
                             android:textStyle="bold" />
 
@@ -638,7 +649,6 @@
                     android:layout_height="wrap_content"
                     android:text="Reminder"
                     android:textAppearance="?attr/textAppearanceHeadlineSmall"
-                    android:textColor="?attr/colorOnSurface"
                     android:textSize="18sp"
                     android:textStyle="bold" />
 
