@@ -35,12 +35,11 @@ class GetPremiumActivity : AppCompatActivity(), PurchasesUpdatedListener {
     private var selectedOfferToken: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
         if (PremiumManager.isPremiumUnlocked(this)) {
-            Toast.makeText(this, "Congrats, you are already a premium user", Toast.LENGTH_SHORT).show()
             finish()
             return
         }
-        super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         val binding = ActivityGetPremiumBinding.inflate(layoutInflater)
         setContentView(binding.root)
