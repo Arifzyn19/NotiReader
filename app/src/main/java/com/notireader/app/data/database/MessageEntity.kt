@@ -10,5 +10,6 @@ data class MessageEntity(
     val message: String,
     val timestamp: Long,
     val isDeleted: Boolean = false,
-    val mediaPath: String? = null
+    val mediaPath: String? = null,
+    val sourcePackage: String
 )

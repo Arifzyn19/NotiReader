@@ -11,5 +11,5 @@ import javax.inject.Inject
 class WhatsappViewModel @Inject constructor(
     private val notiRepository: NotiRepository
 ) : ViewModel() {
-    val allMessages: LiveData<List<MessageModel>> = notiRepository.getAllMessages()
+    val allMessages: LiveData<List<MessageModel>> = notiRepository.getMessagesForPackage("com.whatsapp")
 }

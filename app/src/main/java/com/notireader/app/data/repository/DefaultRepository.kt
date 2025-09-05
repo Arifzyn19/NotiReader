@@ -51,6 +51,12 @@ class DefaultRepository(
         }
     }
 
+    override fun getMessagesForPackage(sourcePackage: String): LiveData<List<MessageModel>> {
+        return messageDao.getMessagesForPackage(sourcePackage).map { messageEntities ->
+            messageEntities.map { it.toMessageModel() }
+        }
+    }
+
     override suspend fun isDuplicateMessage(sender: String, message: String, timestamp: Long): Boolean {
         return withContext(Dispatchers.IO) {
             messageDao.countSimilarMessages(sender, message, timestamp) > 0

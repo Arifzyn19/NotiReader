@@ -53,11 +53,11 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
-        if (!isNotificationServiceEnabled()) {
-            NotificationPermissionBottomSheet().show(supportFragmentManager, "notification_permission")
-        } else if (!isStoragePermissionGranted()) {
-            StoragePermissionBottomSheet().show(supportFragmentManager, "storage_permission")
-        }
+//        if (!isNotificationServiceEnabled()) {
+//            NotificationPermissionBottomSheet().show(supportFragmentManager, "notification_permission")
+//        } else if (!isStoragePermissionGranted()) {
+//            StoragePermissionBottomSheet().show(supportFragmentManager, "storage_permission")
+//        }
 
         val fragments = listOf(
             WhatsappFragment.newInstance(),
@@ -128,6 +128,11 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        if (!isNotificationServiceEnabled()) {
+            NotificationPermissionBottomSheet().show(supportFragmentManager, "notification_permission")
+        } else if (!isStoragePermissionGranted()) {
+            StoragePermissionBottomSheet().show(supportFragmentManager, "storage_permission")
+        }
         if (!PremiumManager.isPremiumUnlocked(this)) {
             AdManager.show(
                 context = this,

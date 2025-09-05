@@ -22,22 +22,22 @@ class WhatsAppNotificationListener : NotificationListenerService() {
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
         super.onNotificationPosted(sbn)
         Log.d("xyz", "Notification received: ${sbn?.packageName}, id=${sbn?.id}, key=${sbn?.key}")
-        if (sbn?.packageName == "com.whatsapp") {
-            val isGroupSummary = sbn.notification.extras.getBoolean("android.isGroupSummary", false)
-            if (isGroupSummary) {
+        val validPackages = setOf("com.whatsapp", "com.whatsapp.w4b")
+        val sourcePackage = sbn?.packageName ?: ""
+        if (sourcePackage in validPackages) {
+            val isGroupSummary = sbn?.notification?.extras?.getBoolean("android.isGroupSummary", false)
+            if (isGroupSummary == true) {
                 Log.d("xyz", "Skipping group summary notification: id=${sbn.id}, key=${sbn.key}")
                 return
             }
-            var title = sbn.notification.extras.getString("android.title") ?: ""
-            var message = sbn.notification.extras.getCharSequence("android.text")?.toString() ?: ""
-            val timeStamp = sbn.postTime
-
+            var title = sbn?.notification?.extras?.getString("android.title") ?: ""
+            var message = sbn?.notification?.extras?.getCharSequence("android.text")?.toString() ?: ""
+            val timeStamp = sbn?.postTime
             val newMsgRegex = Regex("\\d+ new messages", RegexOption.IGNORE_CASE)
             if (newMsgRegex.containsMatchIn(title) || newMsgRegex.containsMatchIn(message) || title.equals("WhatsApp", ignoreCase = true)) {
                 Log.d("xyz", "Filtered out notification: title=$title, message=$message")
                 return
             }
-
             if (":" in title) {
                 val parts = title.split(":", limit = 2)
                 if (parts.size == 2) {
@@ -49,22 +49,15 @@ class WhatsAppNotificationListener : NotificationListenerService() {
             } else if (title.contains("(") && title.contains("new messages", ignoreCase = true)) {
                 title = title.replace(Regex("\\(.*new messages.*\\)", RegexOption.IGNORE_CASE), "").trim()
             }
-
             if (newMsgRegex.matches(message.trim())) {
                 Log.d("xyz", "Filtered out notification with 'new messages' as message: $message")
                 return
             }
-
             if (message.trim().equals("This message was deleted", ignoreCase = true)) {
-                /*CoroutineScope(Dispatchers.IO).launch {
-                    notiRepository.markMessageAsDeletedByDetails(title, message, timeStamp)
-                }*/
                 Log.d("xyz", "Filtered out deleted message notification: $message")
                 return
             }
-
             Log.d("xyz", "Notification details: title=$title, message=$message, timeStamp=$timeStamp")
-
             val mediaTypes = mapOf(
                 "Photo" to "WhatsApp Images",
                 "Video" to "WhatsApp Video",
@@ -85,7 +78,7 @@ class WhatsAppNotificationListener : NotificationListenerService() {
             }
             Log.d("xyz", "Matched media type: ${matchedType?.key} -> ${matchedType?.value}")
             CoroutineScope(Dispatchers.IO).launch {
-                val isDuplicate = notiRepository.isDuplicateMessage(title, message, timeStamp)
+                val isDuplicate = notiRepository.isDuplicateMessage(title, message, timeStamp!!)
                 if (isDuplicate) {
                     Log.d("xyz", "Duplicate notification detected, skipping processing: sender=$title, message=$message, timestamp=$timeStamp")
                     return@launch
@@ -163,10 +156,11 @@ class WhatsAppNotificationListener : NotificationListenerService() {
                     message = message,
                     timestamp = timeStamp,
                     isDeleted = false,
-                    mediaPath = mediaPathLocal
+                    mediaPath = mediaPathLocal,
+                    sourcePackage = sourcePackage // Pass the package name
                 )
-                Log.d("xyz", "Saving messageModel: $messageModel")
                 notiRepository.onWhatsAppNotificationReceived(messageModel)
+                Log.d("xyz", "onWhatsAppNotificationReceived: $messageModel")
             }
 //            cancelNotification(sbn.key)
             return
