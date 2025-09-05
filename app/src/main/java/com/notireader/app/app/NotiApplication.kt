@@ -1,7 +1,13 @@
 package com.notireader.app.app
 
 import android.app.Application
+import com.google.android.gms.ads.MobileAds
 import dagger.hilt.android.HiltAndroidApp
 
 @HiltAndroidApp
-class NotiApplication : Application()
+class NotiApplication : Application() {
+    override fun onCreate() {
+        super.onCreate()
+        MobileAds.initialize(this) {}
+    }
+}

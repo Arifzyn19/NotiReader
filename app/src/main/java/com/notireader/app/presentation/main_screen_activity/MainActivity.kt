@@ -21,8 +21,12 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.notireader.app.R
 import com.notireader.app.databinding.ActivityMainBinding
+import com.notireader.app.domain.models.AdOptionsModel
 import com.notireader.app.presentation.business_screen_fragment.BusinessFragment
 import com.notireader.app.presentation.whatsapp_screen_fragment.WhatsappFragment
+import com.notireader.app.util.AdManager
+import com.notireader.app.util.AdType
+import com.notireader.app.util.PremiumManager
 import dagger.hilt.android.AndroidEntryPoint
 import kotlin.math.abs
 
@@ -49,7 +53,6 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
-        // Only check and show bottom sheet, do not request directly
         if (!isNotificationServiceEnabled()) {
             NotificationPermissionBottomSheet().show(supportFragmentManager, "notification_permission")
         } else if (!isStoragePermissionGranted()) {
@@ -97,6 +100,43 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(this, com.notireader.app.presentation.guide_screen_activity.GuideActivity::class.java)
             startActivity(intent)
         }
+
+        val isPremium = PremiumManager.isPremiumUnlocked(this)
+        if (isPremium) {
+            binding.adViewBanner.visibility = android.view.View.GONE
+            binding.goPremiumBtn.visibility = android.view.View.GONE
+        } else {
+            binding.goPremiumBtn.setOnClickListener {
+                val intent = Intent(this, com.notireader.app.presentation.get_premium_screen_activity.GetPremiumActivity::class.java)
+                startActivity(intent)
+            }
+        }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        if (!PremiumManager.isPremiumUnlocked(this)) {
+            AdManager.show(
+                context = this,
+                adType = AdType.INTERSTITIAL,
+                unitId = "ca-app-pub-3940256099942544/1033173712",
+                container = binding.adViewBanner,
+                options = AdOptionsModel()
+            )
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (!PremiumManager.isPremiumUnlocked(this)) {
+            AdManager.show(
+                context = this,
+                adType = AdType.BANNER,
+                unitId = "ca-app-pub-3940256099942544/9214589741",
+                container = binding.adViewBanner,
+                options = AdOptionsModel()
+            )
+        }
     }
 
     private fun isNotificationServiceEnabled(): Boolean {
@@ -108,21 +148,6 @@ class MainActivity : AppCompatActivity() {
     private fun isStoragePermissionGranted(): Boolean {
         val prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
         return prefs.getString(KEY_FOLDER_URI, null) != null
-    }
-
-    private fun checkAndRequestNotificationPermission() {
-        val cn = android.content.ComponentName(this, "com.notireader.app.domain.services.WhatsAppNotificationListener")
-        val flat = Settings.Secure.getString(contentResolver, "enabled_notification_listeners")
-        val enabled = flat != null && flat.contains(cn.flattenToString())
-        if (!enabled) {
-            val intent = Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            // Use startActivityForResult to get callback when user returns
-            startActivityForResult(intent, REQUEST_CODE_NOTIFICATION_LISTENER_SETTINGS)
-        } else {
-            // If already enabled, request folder permission immediately
-            checkAndRequestFolderPermission()
-        }
     }
 
     internal fun checkAndRequestFolderPermission() {

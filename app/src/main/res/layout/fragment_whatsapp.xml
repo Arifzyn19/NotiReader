@@ -11,6 +11,7 @@
         android:layout_height="match_parent"
         android:layout_below="@+id/timeStamp"
         android:paddingTop="16dp"
+        tools:listitem="@layout/item_sender"
         android:clipToPadding="false" />
 
 </carbon.widget.RelativeLayout>

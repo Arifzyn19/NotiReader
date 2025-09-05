@@ -40,6 +40,17 @@
                 android:textSize="26sp" />
 
             <ImageButton
+                android:id="@+id/go_premium_btn"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:padding="6dp"
+                android:background="@android:color/transparent"
+                android:contentDescription="go premium"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_crown"
+                app:tint="@color/muted_silver" />
+
+            <ImageButton
                 android:id="@+id/guideButton"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
@@ -56,8 +67,15 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:paddingHorizontal="12.dp"
+            android:paddingHorizontal="12dp"
             android:paddingTop="8dp" />
+
+        <com.google.android.gms.ads.AdView
+            android:id="@+id/adViewBanner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:adSize="BANNER"
+            app:adUnitId="ca-app-pub-6997697543913925/4280861408" />
     </LinearLayout>
 
     <com.google.android.material.navigation.NavigationView

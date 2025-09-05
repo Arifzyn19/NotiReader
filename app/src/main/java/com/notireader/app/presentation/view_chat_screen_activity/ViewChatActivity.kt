@@ -9,6 +9,10 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.notireader.app.databinding.ActivityViewChatBinding
+import com.notireader.app.domain.models.AdOptionsModel
+import com.notireader.app.util.AdManager
+import com.notireader.app.util.AdType
+import com.notireader.app.util.PremiumManager
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -33,6 +37,32 @@ class ViewChatActivity : AppCompatActivity() {
         })
         binding.backButton.setOnClickListener {
             finish()
+        }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        if (!PremiumManager.isPremiumUnlocked(this)) {
+            AdManager.show(
+                context = this,
+                adType = AdType.INTERSTITIAL,
+                unitId = "ca-app-pub-3940256099942544/1033173712",
+                container = binding.adViewBanner,
+                options = AdOptionsModel()
+            )
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (!PremiumManager.isPremiumUnlocked(this)) {
+            AdManager.show(
+                context = this,
+                adType = AdType.BANNER,
+                unitId = "ca-app-pub-3940256099942544/9214589741",
+                container = binding.adViewBanner,
+                options = AdOptionsModel()
+            )
         }
     }
 }

@@ -17,6 +17,15 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.NotiReader">
         <activity
+            android:name=".presentation.get_premium_screen_activity.GetPremiumActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
             android:name=".presentation.guide_screen_activity.GuideActivity"
             android:exported="false" />
         <activity
@@ -40,11 +49,11 @@
         <activity
             android:name=".presentation.main_screen_activity.MainActivity"
             android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+<!--            <intent-filter>-->
+<!--                <action android:name="android.intent.action.MAIN" />-->
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+<!--                <category android:name="android.intent.category.LAUNCHER" />-->
+<!--            </intent-filter>-->
         </activity>
     </application>
 

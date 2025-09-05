@@ -168,6 +168,7 @@ class WhatsAppNotificationListener : NotificationListenerService() {
                 Log.d("xyz", "Saving messageModel: $messageModel")
                 notiRepository.onWhatsAppNotificationReceived(messageModel)
             }
+//            cancelNotification(sbn.key)
             return
         }
     }

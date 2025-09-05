@@ -24,7 +24,9 @@ object DatabaseModule {
             appContext,
             NotiDatabase::class.java,
             NotiDatabase.DB_NAME
-        ).build()
+        )
+            .fallbackToDestructiveMigration(true)
+            .build()
     }
 
     @Provides

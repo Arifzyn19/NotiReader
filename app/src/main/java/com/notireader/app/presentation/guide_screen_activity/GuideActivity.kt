@@ -20,8 +20,12 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.notireader.app.databinding.ActivityGuideBinding
+import com.notireader.app.domain.models.AdOptionsModel
 import com.notireader.app.presentation.main_screen_activity.NotificationPermissionBottomSheet
 import com.notireader.app.presentation.main_screen_activity.StoragePermissionBottomSheet
+import com.notireader.app.util.AdManager
+import com.notireader.app.util.AdType
+import com.notireader.app.util.PremiumManager
 
 class GuideActivity : AppCompatActivity() {
     private lateinit var binding: ActivityGuideBinding
@@ -52,6 +56,32 @@ class GuideActivity : AppCompatActivity() {
         }
         binding.toolbar.setNavigationOnClickListener {
             finish()
+        }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        if (!PremiumManager.isPremiumUnlocked(this)) {
+            AdManager.show(
+                context = this,
+                adType = AdType.INTERSTITIAL,
+                unitId = "ca-app-pub-3940256099942544/1033173712",
+                container = binding.adViewBanner,
+                options = AdOptionsModel()
+            )
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (!PremiumManager.isPremiumUnlocked(this)) {
+            AdManager.show(
+                context = this,
+                adType = AdType.BANNER,
+                unitId = "ca-app-pub-3940256099942544/9214589741",
+                container = binding.adViewBanner,
+                options = AdOptionsModel()
+            )
         }
     }
 
