@@ -21,7 +21,7 @@ class WhatsAppNotificationListener : NotificationListenerService() {
 
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
         super.onNotificationPosted(sbn)
-        Log.d("xyz", "Notification received: ${sbn?.packageName}, id=${sbn?.id}, key=${sbn?.key}")
+//        Log.d("xyz", "Notification received: ${sbn?.packageName}, id=${sbn?.id}, key=${sbn?.key}")
         val validPackages = setOf("com.whatsapp", "com.whatsapp.w4b")
         val sourcePackage = sbn?.packageName ?: ""
         if (sourcePackage in validPackages) {
@@ -34,8 +34,8 @@ class WhatsAppNotificationListener : NotificationListenerService() {
             var message = sbn?.notification?.extras?.getCharSequence("android.text")?.toString() ?: ""
             val timeStamp = sbn?.postTime
             val largeIcon = sbn?.notification?.largeIcon
-//            val iconResId = sbn?.notification?.smallIcon?.resId ?: 0
-
+            val creationTime = sbn?.notification?.`when`
+//            Log.d("xyz", "creation time: ${sbn?.notification?.`when`}")
             val newMsgRegex = Regex("\\d+ new messages", RegexOption.IGNORE_CASE)
             if (newMsgRegex.containsMatchIn(title) || newMsgRegex.containsMatchIn(message) || title.equals("WhatsApp", ignoreCase = true)) {
                 Log.d("xyz", "Filtered out notification: title=$title, message=$message")
@@ -60,7 +60,7 @@ class WhatsAppNotificationListener : NotificationListenerService() {
                 Log.d("xyz", "Filtered out deleted message notification: $message")
                 return
             }
-            Log.d("xyz", "Notification details: title=$title, message=$message, timeStamp=$timeStamp")
+            Log.d("xyz", "Notification details: title=$title, message=$message, timeStamp=$timeStamp, creationTime=$creationTime")
             val mediaTypes = mapOf(
                 "Photo" to "WhatsApp Images",
                 "Video" to "WhatsApp Video",
@@ -81,14 +81,7 @@ class WhatsAppNotificationListener : NotificationListenerService() {
             }
             Log.d("xyz", "Matched media type: ${matchedType?.key} -> ${matchedType?.value}")
             CoroutineScope(Dispatchers.IO).launch {
-                val isDuplicate = notiRepository.isDuplicateMessage(title, message, timeStamp!!)
-                if (isDuplicate) {
-                    Log.d(
-                        "xyz",
-                        "Duplicate notification detected, skipping processing: sender=$title, message=$message, timestamp=$timeStamp"
-                    )
-                    return@launch
-                }
+                // Remove duplicate check here - let repository handle it
                 var mediaPathLocal: String? = null
                 if (matchedType != null) {
                     try {
@@ -166,7 +159,7 @@ class WhatsAppNotificationListener : NotificationListenerService() {
                 val messageModel = MessageModel(
                     sender = title,
                     message = message,
-                    timestamp = timeStamp,
+                    timestamp = timeStamp!!,
                     isDeleted = false,
                     mediaPath = mediaPathLocal,
                     sourcePackage = sourcePackage,

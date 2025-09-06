@@ -9,11 +9,15 @@ import com.notireader.app.data.mappers.toMessageModel
 import com.notireader.app.domain.models.MessageModel
 import com.notireader.app.domain.repository.NotiRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
 class DefaultRepository(
     private val messageDao: MessageDao
 ) : NotiRepository {
+    private val mutex = Mutex()
+
     override fun getAllMessages(): LiveData<List<MessageModel>> {
         return messageDao.getAllMessages().map { messageEntities ->
             messageEntities.map { messageEntity ->
@@ -44,8 +48,10 @@ class DefaultRepository(
 
     override suspend fun onWhatsAppNotificationReceived(message: MessageModel) {
         Log.d("xyz", "onWhatsAppNotificationReceived: $message")
-        val count = messageDao.countSimilarMessages(message.sender, message.message, message.timestamp)
-        if (count == 0) {
+        val isDuplicate = mutex.withLock {
+            messageDao.countSimilarMessages(message.sender, message.message, message.timestamp) > 0
+        }
+        if (!isDuplicate) {
             insertMessage(message)
         } else {
             Log.d("xyz", "Duplicate message detected, skipping insert: $message")
