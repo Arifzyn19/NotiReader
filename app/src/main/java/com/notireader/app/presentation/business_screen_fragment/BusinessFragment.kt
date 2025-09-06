@@ -21,9 +21,9 @@ class BusinessFragment : Fragment() {
     }
 
     private val viewModel: BusinessViewModel by viewModels()
-
     private var _binding: FragmentBusinessBinding? = null
     private val binding get() = _binding!!
+    private lateinit var adapter: BusinessAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -35,22 +35,38 @@ class BusinessFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        adapter = BusinessAdapter(
+            onClick = { senderName ->
+                val intent = Intent(requireContext(), ViewChatActivity::class.java)
+                intent.putExtra("sender_name", senderName)
+                startActivity(intent)
+            },
+            getUnreadCount = { sender, onResult ->
+                viewModel.countUnread(sender).observe(viewLifecycleOwner) { count ->
+                    onResult(count)
+                }
+            }
+        )
+
+        binding.senderRecyclerView.layoutManager = LinearLayoutManager(requireContext())
+        binding.senderRecyclerView.adapter = adapter
+
         viewModel.allMessages.observe(viewLifecycleOwner, Observer { messages ->
             if (!messages.isNullOrEmpty()) {
-                val adapter = BusinessAdapter(
-                    message = messages,
-                    onClick = { senderName ->
-                        val intent = Intent(requireContext(), ViewChatActivity::class.java)
-                        intent.putExtra("sender_name", senderName)
-                        startActivity(intent)
-                    },
-                    getUnreadCount = { sender, onResult ->
-                        viewModel.countUnread(sender).observe(viewLifecycleOwner) { count ->
-                            onResult(count)
-                        }
-                    })
-                binding.senderRecyclerView.layoutManager = LinearLayoutManager(requireContext())
-                binding.senderRecyclerView.adapter = adapter
+                binding.imgNoMessages.visibility = View.GONE
+                binding.senderRecyclerView.visibility = View.VISIBLE
+
+                val uniqueMessage = messages
+                    .groupBy { it.sender }
+                    .map { (_, senderMessages) ->
+                        senderMessages.maxByOrNull { it.timestamp }!!
+                    }
+
+                adapter.updateData(uniqueMessage)
+            } else {
+                binding.senderRecyclerView.visibility = View.GONE
+                binding.imgNoMessages.visibility = View.VISIBLE
             }
         })
     }

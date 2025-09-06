@@ -9,7 +9,7 @@ import com.notireader.app.data.mappers.Converters
 
 @Database(
     entities = [MessageEntity::class],
-    version = 5,
+    version = 6,
     exportSchema = false
 )
 @TypeConverters(Converters::class)

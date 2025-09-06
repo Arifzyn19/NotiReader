@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.notireader.app.databinding.ItemMessageBinding
 import com.notireader.app.domain.models.MessageModel
+import com.notireader.app.util.TimeUtils
 
 class ViewChatAdapter(private val messages: List<MessageModel>) : RecyclerView.Adapter<ViewChatAdapter.MessageViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MessageViewHolder {
@@ -24,10 +25,9 @@ class ViewChatAdapter(private val messages: List<MessageModel>) : RecyclerView.A
     inner class MessageViewHolder(private val binding: ItemMessageBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(message: MessageModel) {
             binding.messageText.text = message.message
-            binding.timeStamp.text = message.timestamp.toString()
+            binding.timeStamp.text = TimeUtils.formatTimestamp(message.timestamp, TimeUtils.TIME)
             val mediaPath = message.mediaPath
             val context = binding.root.context
-            // Hide all media-related views by default
             binding.mediaImageView.visibility = View.GONE
             binding.playButton.visibility = View.GONE
             binding.openDocButton.visibility = View.GONE

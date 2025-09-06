@@ -7,12 +7,20 @@ import androidx.recyclerview.widget.RecyclerView
 import com.notireader.app.R
 import com.notireader.app.databinding.ItemSenderBinding
 import com.notireader.app.domain.models.MessageModel
+import com.notireader.app.util.TimeUtils
 
 class BusinessAdapter(
-    private val message: List<MessageModel>,
     private val onClick: (String) -> Unit,
     private val getUnreadCount: (String, (Int) -> Unit) -> Unit
 ) : RecyclerView.Adapter<BusinessAdapter.SenderViewHolder>() {
+
+    private var messages: List<MessageModel> = emptyList()
+
+    fun updateData(newMessages: List<MessageModel>) {
+        messages = newMessages
+        notifyDataSetChanged()
+    }
+
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int
@@ -25,10 +33,10 @@ class BusinessAdapter(
         holder: SenderViewHolder,
         position: Int
     ) {
-        holder.bind(message[position])
+        holder.bind(messages[position])
     }
 
-    override fun getItemCount(): Int = message.size
+    override fun getItemCount(): Int = messages.size
 
     inner class SenderViewHolder(private val binding: ItemSenderBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(message: MessageModel) {
@@ -40,6 +48,8 @@ class BusinessAdapter(
                 binding.numberOfUnReads.text = count.toString()
                 binding.numberOfUnReads.visibility = if (count > 0) View.VISIBLE else View.GONE
             }
+            binding.latestTime.text = TimeUtils.formatTimestamp(message.timestamp, TimeUtils.TIME)
+            binding.latestMessage.text = message.message
             binding.root.setOnClickListener { onClick(message.sender) }
         }
     }

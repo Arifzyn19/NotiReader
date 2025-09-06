@@ -49,13 +49,13 @@ class ViewChatActivity : AppCompatActivity() {
         super.onStart()
         if (!PremiumManager.isPremiumUnlocked(this)) {
             // TODO: for development purposes
-//            AdManager.show(
-//                context = this,
-//                adType = AdType.INTERSTITIAL,
-//                unitId = "ca-app-pub-3940256099942544/1033173712",
-//                container = binding.adViewBanner,
-//                options = AdOptionsModel()
-//            )
+            AdManager.show(
+                context = this,
+                adType = AdType.INTERSTITIAL,
+                unitId = "ca-app-pub-3940256099942544/1033173712",
+                container = binding.adViewBanner,
+                options = AdOptionsModel()
+            )
         }
     }
 

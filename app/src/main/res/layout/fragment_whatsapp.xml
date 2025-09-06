@@ -5,6 +5,14 @@
     android:layout_height="match_parent"
     tools:context=".presentation.whatsapp_screen_fragment.WhatsappFragment">
 
+    <carbon.widget.ImageView
+        android:id="@+id/img_no_messages"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:visibility="gone"
+        android:src="@drawable/img_no_messages" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/senderRecyclerView"
         android:layout_width="match_parent"
@@ -12,6 +20,7 @@
         android:layout_below="@+id/timeStamp"
         android:clipToPadding="false"
         android:paddingTop="16dp"
+        android:visibility="visible"
         tools:listitem="@layout/item_sender" />
 
 </carbon.widget.RelativeLayout>
