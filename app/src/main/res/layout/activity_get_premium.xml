@@ -39,7 +39,7 @@
                 android:layout_height="20dp"
                 android:layout_marginEnd="8dp"
                 android:contentDescription="app_logo"
-                android:src="@drawable/ic_whatsapp" />
+                android:src="@mipmap/ic_launcher_round" />
 
             <TextView
                 android:layout_width="wrap_content"

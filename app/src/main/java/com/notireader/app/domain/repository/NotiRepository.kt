@@ -11,4 +11,6 @@ interface NotiRepository {
     fun getMessagesForSender(sender: String): LiveData<List<MessageModel>>
     fun getMessagesForPackage(sourcePackage: String): LiveData<List<MessageModel>>
     suspend fun isDuplicateMessage(sender: String, message: String, timestamp: Long): Boolean
+    suspend fun markMessageAsRead(sender: String)
+    fun countUnreadMessagesForSender(sender: String): LiveData<Int>
 }

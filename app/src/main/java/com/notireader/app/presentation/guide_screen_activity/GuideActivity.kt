@@ -62,13 +62,14 @@ class GuideActivity : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
         if (!PremiumManager.isPremiumUnlocked(this)) {
-            AdManager.show(
-                context = this,
-                adType = AdType.INTERSTITIAL,
-                unitId = "ca-app-pub-3940256099942544/1033173712",
-                container = binding.adViewBanner,
-                options = AdOptionsModel()
-            )
+            // TODO: for development purposes
+//            AdManager.show(
+//                context = this,
+//                adType = AdType.INTERSTITIAL,
+//                unitId = "ca-app-pub-3940256099942544/1033173712",
+//                container = binding.adViewBanner,
+//                options = AdOptionsModel()
+//            )
         }
     }
 

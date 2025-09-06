@@ -13,5 +13,8 @@ class ViewChatViewModel @Inject constructor(
 ) : ViewModel() {
     fun getMessagesForSender(sender: String): LiveData<List<MessageModel>> =
         notiRepository.getMessagesForSender(sender)
-}
 
+    suspend fun markMessagesAsRead(sender: String) {
+        notiRepository.markMessageAsRead(sender)
+    }
+}

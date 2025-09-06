@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.notireader.app.databinding.ActivityViewChatBinding
 import com.notireader.app.domain.models.AdOptionsModel
@@ -14,6 +15,7 @@ import com.notireader.app.util.AdManager
 import com.notireader.app.util.AdType
 import com.notireader.app.util.PremiumManager
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class ViewChatActivity : AppCompatActivity() {
@@ -35,6 +37,9 @@ class ViewChatActivity : AppCompatActivity() {
         viewModel.getMessagesForSender(senderName).observe(this, Observer { messages ->
             binding.messageRecyclerView.adapter = ViewChatAdapter(messages)
         })
+        lifecycleScope.launch {
+            viewModel.markMessagesAsRead(senderName)
+        }
         binding.backButton.setOnClickListener {
             finish()
         }
@@ -43,13 +48,14 @@ class ViewChatActivity : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
         if (!PremiumManager.isPremiumUnlocked(this)) {
-            AdManager.show(
-                context = this,
-                adType = AdType.INTERSTITIAL,
-                unitId = "ca-app-pub-3940256099942544/1033173712",
-                container = binding.adViewBanner,
-                options = AdOptionsModel()
-            )
+            // TODO: for development purposes
+//            AdManager.show(
+//                context = this,
+//                adType = AdType.INTERSTITIAL,
+//                unitId = "ca-app-pub-3940256099942544/1033173712",
+//                container = binding.adViewBanner,
+//                options = AdOptionsModel()
+//            )
         }
     }
 

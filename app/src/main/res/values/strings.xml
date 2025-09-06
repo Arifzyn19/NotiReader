@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">NotiReader</string>
+    <string name="splash_message">Welcome to NotiReader\nYour WhatsApp Messages Recovered, beautifully organized.</string>
 </resources>

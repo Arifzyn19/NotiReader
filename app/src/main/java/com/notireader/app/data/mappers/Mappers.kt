@@ -11,7 +11,9 @@ fun MessageModel.toMessageEntity(): MessageEntity {
         timestamp = timestamp,
         isDeleted = isDeleted,
         mediaPath = mediaPath,
-        sourcePackage = sourcePackage
+        sourcePackage = sourcePackage,
+        isRead = isRead,
+        iconRes = iconRes
     )
 }
 
@@ -23,6 +25,8 @@ fun MessageEntity.toMessageModel(): MessageModel {
         timestamp = timestamp,
         isDeleted = isDeleted,
         mediaPath = mediaPath,
-        sourcePackage = sourcePackage
+        sourcePackage = sourcePackage,
+        isRead = isRead,
+        iconRes = iconRes
     )
 }

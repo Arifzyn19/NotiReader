@@ -22,6 +22,14 @@ class DefaultRepository(
         }
     }
 
+    override fun countUnreadMessagesForSender(sender: String): LiveData<Int> {
+        return messageDao.countUnreadMessagesForSender(sender)
+    }
+
+    override suspend fun markMessageAsRead(sender: String) {
+        messageDao.markMessagesAsRead(sender)
+    }
+
     override suspend fun insertMessage(message: MessageModel) {
         withContext(Dispatchers.IO) {
             messageDao.insertMessage(message.toMessageEntity())
@@ -29,7 +37,6 @@ class DefaultRepository(
     }
 
     override suspend fun markMessageAsDeletedByDetails(sender: String, message: String, timestamp: Long) {
-        // TODO: implement delete logic 
         withContext(Dispatchers.IO) {
             messageDao.markAsDeletedByDetails(sender, message, timestamp)
         }

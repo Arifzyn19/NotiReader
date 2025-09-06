@@ -12,4 +12,7 @@ class BusinessViewModel @Inject constructor(
     private val notiRepository: NotiRepository
 ) : ViewModel() {
     val allMessages: LiveData<List<MessageModel>> = notiRepository.getMessagesForPackage("com.whatsapp.w4b")
+    fun countUnread(sender: String): LiveData<Int> {
+        return notiRepository.countUnreadMessagesForSender(sender)
+    }
 }

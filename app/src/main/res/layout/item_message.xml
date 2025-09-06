@@ -1,71 +1,72 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:card_view="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
+<carbon.widget.LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
-    android:background="@drawable/glass_background"
-    android:backgroundTint="@color/deep_charcoal"
-    card_view:cardCornerRadius="12dp"
-    card_view:strokeColor="@color/elevated_surface_grey"
-    card_view:strokeWidth="1dp">
+    android:background="@color/carbon_grey_900"
+    android:minWidth="220dp"
+    android:orientation="vertical"
+    android:padding="10dp"
+    app:carbon_cornerRadius="12dp"
+    app:carbon_maxWidth="320dp"
+    app:strokeColor="@color/whatsapp_secondary_green"
+    app:strokeWidth="1dp">
 
-    <carbon.widget.LinearLayout
-        android:layout_width="match_parent"
+    <carbon.widget.ImageView
+        android:id="@+id/mediaImageView"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:layout_below="@id/messageText"
+        android:layout_marginBottom="12dp"
+        android:contentDescription="image"
+        android:scaleType="centerCrop"
+        android:src="@color/warm_white"
+        android:visibility="gone"
+        app:carbon_cornerRadius="12dp" />
+
+    <carbon.widget.Button
+        android:id="@+id/playButton"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:paddingHorizontal="14dp"
-        android:paddingVertical="12dp">
+        android:layout_below="@id/mediaImageView"
+        android:layout_marginBottom="12dp"
+        android:background="@drawable/glass_background"
+        android:paddingHorizontal="36dp"
+        android:text="Play"
+        android:visibility="gone"
+        app:carbon_backgroundTint="@color/whatsapp_secondary_green"
+        app:carbon_cornerRadius="2dp" />
 
-        <carbon.widget.TextView
-            android:id="@+id/messageText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="messageText"
-            android:textSize="16sp" />
+    <carbon.widget.Button
+        android:id="@+id/openDocButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/playButton"
+        android:layout_marginBottom="12dp"
+        android:background="@drawable/glass_background"
+        android:paddingHorizontal="36dp"
+        android:text="Open"
+        android:visibility="gone"
+        app:carbon_backgroundTint="@color/whatsapp_secondary_green"
+        app:carbon_cornerRadius="2dp" />
 
-        <carbon.widget.ImageView
-            android:id="@+id/mediaImageView"
-            android:layout_width="200dp"
-            android:layout_height="200dp"
-            android:layout_marginTop="12dp"
-            android:contentDescription="image"
-            android:scaleType="centerCrop"
-            android:src="@color/warm_white"
-            android:visibility="gone"
-            card_view:carbon_cornerRadius="12dp" />
+    <carbon.widget.TextView
+        android:id="@+id/messageText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:text="messageText"
+        android:textSize="16sp" />
 
-        <carbon.widget.Button
-            android:id="@+id/playButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:background="@drawable/glass_background"
-            android:paddingHorizontal="36dp"
-            android:text="Play"
-            android:visibility="gone"
-            card_view:carbon_backgroundTint="@color/electric_blue"
-            card_view:carbon_cornerRadius="2dp" />
-
-        <carbon.widget.Button
-            android:id="@+id/openDocButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:background="@drawable/glass_background"
-            android:paddingHorizontal="36dp"
-            android:text="Open"
-            android:visibility="gone"
-            card_view:carbon_backgroundTint="@color/electric_blue"
-            card_view:carbon_cornerRadius="2dp" />
-
-        <carbon.widget.TextView
-            android:id="@+id/timeStamp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            android:text="timeStamp"
-            android:textColor="?android:textColorSecondary"
-            android:textSize="12sp" />
-    </carbon.widget.LinearLayout>
-</com.google.android.material.card.MaterialCardView>
+    <carbon.widget.TextView
+        android:id="@+id/timeStamp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/openDocButton"
+        android:layout_gravity="end"
+        android:text="timeStamp"
+        android:textColor="?android:textColorSecondary"
+        android:textSize="12sp" />
+</carbon.widget.LinearLayout>

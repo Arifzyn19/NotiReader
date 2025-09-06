@@ -24,4 +24,10 @@ interface MessageDao {
 
     @Query("SELECT * FROM messages WHERE sourcePackage = :sourcePackage ORDER BY timestamp DESC")
     fun getMessagesForPackage(sourcePackage: String): LiveData<List<MessageEntity>>
+
+    @Query("UPDATE messages SET isRead = 1 WHERE sender = :sender")
+    suspend fun markMessagesAsRead(sender: String)
+
+    @Query("SELECT COUNT(*) FROM messages WHERE sender = :sender AND isRead = 0")
+    fun countUnreadMessagesForSender(sender: String): LiveData<Int>
 }

@@ -37,12 +37,18 @@ class BusinessFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         viewModel.allMessages.observe(viewLifecycleOwner, Observer { messages ->
             if (!messages.isNullOrEmpty()) {
-                val uniqueSenders = messages.map { it.sender }.distinct()
-                val adapter = BusinessAdapter(uniqueSenders) { senderName ->
-                    val intent = Intent(requireContext(), ViewChatActivity::class.java)
-                    intent.putExtra("sender_name", senderName)
-                    startActivity(intent)
-                }
+                val adapter = BusinessAdapter(
+                    message = messages,
+                    onClick = { senderName ->
+                        val intent = Intent(requireContext(), ViewChatActivity::class.java)
+                        intent.putExtra("sender_name", senderName)
+                        startActivity(intent)
+                    },
+                    getUnreadCount = { sender, onResult ->
+                        viewModel.countUnread(sender).observe(viewLifecycleOwner) { count ->
+                            onResult(count)
+                        }
+                    })
                 binding.senderRecyclerView.layoutManager = LinearLayoutManager(requireContext())
                 binding.senderRecyclerView.adapter = adapter
             }

@@ -33,6 +33,9 @@ class WhatsAppNotificationListener : NotificationListenerService() {
             var title = sbn?.notification?.extras?.getString("android.title") ?: ""
             var message = sbn?.notification?.extras?.getCharSequence("android.text")?.toString() ?: ""
             val timeStamp = sbn?.postTime
+            val largeIcon = sbn?.notification?.largeIcon
+//            val iconResId = sbn?.notification?.smallIcon?.resId ?: 0
+
             val newMsgRegex = Regex("\\d+ new messages", RegexOption.IGNORE_CASE)
             if (newMsgRegex.containsMatchIn(title) || newMsgRegex.containsMatchIn(message) || title.equals("WhatsApp", ignoreCase = true)) {
                 Log.d("xyz", "Filtered out notification: title=$title, message=$message")
@@ -80,7 +83,10 @@ class WhatsAppNotificationListener : NotificationListenerService() {
             CoroutineScope(Dispatchers.IO).launch {
                 val isDuplicate = notiRepository.isDuplicateMessage(title, message, timeStamp!!)
                 if (isDuplicate) {
-                    Log.d("xyz", "Duplicate notification detected, skipping processing: sender=$title, message=$message, timestamp=$timeStamp")
+                    Log.d(
+                        "xyz",
+                        "Duplicate notification detected, skipping processing: sender=$title, message=$message, timestamp=$timeStamp"
+                    )
                     return@launch
                 }
                 var mediaPathLocal: String? = null
@@ -152,13 +158,19 @@ class WhatsAppNotificationListener : NotificationListenerService() {
                         Log.e("xyz", "Exception during media copy", e)
                     }
                 }
+//                val iconResName = when (sourcePackage) {
+//                    "com.whatsapp" -> "ic_whatsapp"
+//                    "com.whatsapp.w4b" -> "ic_whatsapp_business"
+//                    else -> null
+//                }
                 val messageModel = MessageModel(
                     sender = title,
                     message = message,
                     timestamp = timeStamp,
                     isDeleted = false,
                     mediaPath = mediaPathLocal,
-                    sourcePackage = sourcePackage // Pass the package name
+                    sourcePackage = sourcePackage,
+                    iconRes = largeIcon,
                 )
                 notiRepository.onWhatsAppNotificationReceived(messageModel)
                 Log.d("xyz", "onWhatsAppNotificationReceived: $messageModel")

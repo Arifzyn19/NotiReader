@@ -1,5 +1,6 @@
 package com.notireader.app.data.database
 
+import android.graphics.Bitmap
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
@@ -11,5 +12,7 @@ data class MessageEntity(
     val timestamp: Long,
     val isDeleted: Boolean = false,
     val mediaPath: String? = null,
-    val sourcePackage: String
+    val sourcePackage: String,
+    val isRead: Boolean = false,
+    val iconRes: Bitmap? = null
 )
