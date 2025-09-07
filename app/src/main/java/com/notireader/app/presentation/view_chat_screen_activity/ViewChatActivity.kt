@@ -1,6 +1,7 @@
 package com.notireader.app.presentation.view_chat_screen_activity
 
 import android.os.Bundle
+import android.view.View
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -31,6 +32,7 @@ class ViewChatActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+        val isPremium = PremiumManager.isPremiumUnlocked(this)
         val senderName = intent.getStringExtra("sender_name") ?: ""
         binding.senderTitle.text = senderName
         binding.messageRecyclerView.layoutManager = LinearLayoutManager(this)
@@ -42,6 +44,9 @@ class ViewChatActivity : AppCompatActivity() {
         }
         binding.backButton.setOnClickListener {
             finish()
+        }
+        if (isPremium) {
+            binding.adViewBanner.visibility = View.GONE
         }
     }
 

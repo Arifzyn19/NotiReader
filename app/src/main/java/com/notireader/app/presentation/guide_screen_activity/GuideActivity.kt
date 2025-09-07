@@ -39,6 +39,7 @@ class GuideActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+        val isPremium = PremiumManager.isPremiumUnlocked(this)
         setupDropdownSections()
         binding.btnEnable.setOnClickListener {
             if (isNotificationServiceEnabled()) {
@@ -57,11 +58,15 @@ class GuideActivity : AppCompatActivity() {
         binding.toolbar.setNavigationOnClickListener {
             finish()
         }
+        if (isPremium) {
+            binding.adViewBanner.visibility = View.GONE
+        }
     }
 
     override fun onStart() {
         super.onStart()
-        if (!PremiumManager.isPremiumUnlocked(this)) {
+        val isPremium = PremiumManager.isPremiumUnlocked(this)
+        if (!isPremium) {
             // TODO: for development purposes
 //            AdManager.show(
 //                context = this,
@@ -75,7 +80,8 @@ class GuideActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        if (!PremiumManager.isPremiumUnlocked(this)) {
+        val isPremium = PremiumManager.isPremiumUnlocked(this)
+        if (!isPremium) {
             AdManager.show(
                 context = this,
                 adType = AdType.BANNER,

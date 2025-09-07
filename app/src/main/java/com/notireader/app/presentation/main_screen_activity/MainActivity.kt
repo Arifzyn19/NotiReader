@@ -9,6 +9,7 @@ import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.edit
@@ -22,10 +23,18 @@ import androidx.viewpager2.widget.ViewPager2
 import com.notireader.app.R
 import com.notireader.app.databinding.ActivityMainBinding
 import com.notireader.app.domain.models.AdOptionsModel
+import com.notireader.app.domain.services.RateUs
+import com.notireader.app.domain.services.ShareApp
 import com.notireader.app.presentation.business_screen_fragment.BusinessFragment
+import com.notireader.app.presentation.customer_support_screen_activity.CustomerSupportActivity
+import com.notireader.app.presentation.get_premium_screen_activity.GetPremiumActivity
+import com.notireader.app.presentation.guide_screen_activity.GuideActivity
+import com.notireader.app.presentation.privacy_policy_screen_activity.PrivacyPolicyActivity
+import com.notireader.app.presentation.terms_and_condition_screen_activity.TermsAndConditionActivity
 import com.notireader.app.presentation.whatsapp_screen_fragment.WhatsappFragment
 import com.notireader.app.util.AdManager
 import com.notireader.app.util.AdType
+import com.notireader.app.util.ExitConfirmationDialog
 import com.notireader.app.util.PremiumManager
 import dagger.hilt.android.AndroidEntryPoint
 import kotlin.math.abs
@@ -47,6 +56,8 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        val isPremium = PremiumManager.isPremiumUnlocked(this)
+
         ViewCompat.setOnApplyWindowInsetsListener(binding.outerLayout) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
@@ -60,10 +71,9 @@ class MainActivity : AppCompatActivity() {
 //        }
 
         val fragments = listOf(
-            WhatsappFragment.newInstance(),
-            BusinessFragment.newInstance()
+            WhatsappFragment.newInstance(), BusinessFragment.newInstance()
         )
-        val fragmentNames = listOf("WhatsApp", "Business")
+        val fragmentNames = listOf("WA Recovery", "Business")
 
         binding.viewPager.adapter = object : FragmentStateAdapter(this) {
             override fun getItemCount() = fragments.size
@@ -78,7 +88,45 @@ class MainActivity : AppCompatActivity() {
         binding.navigationView.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.nav_whatsapp -> binding.viewPager.currentItem = 0
+
                 R.id.nav_business -> binding.viewPager.currentItem = 1
+
+                R.id.nav_remove_ads -> {
+                    if (isPremium) {
+                        Toast.makeText(this, "You already have premium version!", Toast.LENGTH_SHORT).show()
+                    } else {
+                        val intent = Intent(this, GetPremiumActivity::class.java)
+                        startActivity(intent)
+                    }
+                }
+
+                R.id.nav_customer_support -> {
+                    val intent = Intent(this, CustomerSupportActivity::class.java)
+                    startActivity(intent)
+                }
+
+                R.id.nav_rate_us -> {
+                    RateUs.rate(this)
+                }
+
+                R.id.nav_privacy_policy -> {
+                    val intent = Intent(this, PrivacyPolicyActivity::class.java)
+                    startActivity(intent)
+                }
+
+                R.id.nav_terms_and_condition -> {
+                    val intent = Intent(this, TermsAndConditionActivity::class.java)
+                    startActivity(intent)
+                }
+
+                R.id.nav_app_not_working -> {
+                    val intent = Intent(this, GuideActivity::class.java)
+                    startActivity(intent)
+                }
+
+                R.id.nav_share_app -> {
+                    ShareApp.share(this)
+                }
             }
             binding.drawerLayout.closeDrawers()
             true
@@ -97,25 +145,34 @@ class MainActivity : AppCompatActivity() {
         })
 
         binding.guideButton.setOnClickListener {
-            val intent = Intent(this, com.notireader.app.presentation.guide_screen_activity.GuideActivity::class.java)
+            val intent = Intent(this, GuideActivity::class.java)
             startActivity(intent)
         }
 
-        val isPremium = PremiumManager.isPremiumUnlocked(this)
         if (isPremium) {
             binding.adViewBanner.visibility = android.view.View.GONE
             binding.goPremiumBtn.visibility = android.view.View.GONE
+            binding.navigationView.menu.findItem(R.id.nav_remove_ads)?.isVisible = false
         } else {
             binding.goPremiumBtn.setOnClickListener {
-                val intent = Intent(this, com.notireader.app.presentation.get_premium_screen_activity.GetPremiumActivity::class.java)
+                val intent = Intent(this, GetPremiumActivity::class.java)
                 startActivity(intent)
             }
         }
+
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                ExitConfirmationDialog.show(this@MainActivity) {
+                    finish()
+                }
+            }
+        })
     }
 
     override fun onStart() {
         super.onStart()
-        if (!PremiumManager.isPremiumUnlocked(this)) {
+        val isPremium = PremiumManager.isPremiumUnlocked(this)
+        if (!isPremium) {
             // TODO: for development purposes
 //            AdManager.show(
 //                context = this,
@@ -129,6 +186,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        val isPremium = PremiumManager.isPremiumUnlocked(this)
         if (!isNotificationServiceEnabled()) {
             NotificationPermissionBottomSheet().show(supportFragmentManager, "notification_permission")
         } else if (!isStoragePermissionGranted()) {
@@ -136,7 +194,7 @@ class MainActivity : AppCompatActivity() {
         } else {
             validateSavedFolderPermission()
         }
-        if (!PremiumManager.isPremiumUnlocked(this)) {
+        if (!isPremium) {
             AdManager.show(
                 context = this,
                 adType = AdType.BANNER,
@@ -186,13 +244,10 @@ class MainActivity : AppCompatActivity() {
         if (savedUri == null) {
             val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE).apply {
                 putExtra(
-                    "android.provider.extra.INITIAL_URI",
-                    "content://com.android.externalstorage.documents/document/primary:Android/media".toUri()
+                    "android.provider.extra.INITIAL_URI", "content://com.android.externalstorage.documents/document/primary:Android/media".toUri()
                 )
                 addFlags(
-                    Intent.FLAG_GRANT_READ_URI_PERMISSION or
-                            Intent.FLAG_GRANT_WRITE_URI_PERMISSION or
-                            Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION or Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION
                 )
             }
             startActivityForResult(intent, REQUEST_CODE_OPEN_DOCUMENT_TREE)
@@ -212,8 +267,7 @@ class MainActivity : AppCompatActivity() {
                 val treeUri: Uri? = data?.data
                 if (treeUri != null) {
                     contentResolver.takePersistableUriPermission(
-                        treeUri,
-                        Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                        treeUri, Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
                     )
 
                     getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit {

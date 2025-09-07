@@ -4,9 +4,9 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.view.View
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -14,19 +14,16 @@ import androidx.core.view.WindowInsetsCompat
 import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.BillingClientStateListener
 import com.android.billingclient.api.BillingFlowParams
-import com.android.billingclient.api.BillingFlowParams.*
+import com.android.billingclient.api.BillingFlowParams.ProductDetailsParams
 import com.android.billingclient.api.BillingResult
 import com.android.billingclient.api.PendingPurchasesParams
 import com.android.billingclient.api.ProductDetails
 import com.android.billingclient.api.Purchase
 import com.android.billingclient.api.PurchasesUpdatedListener
 import com.android.billingclient.api.QueryProductDetailsParams
-import com.google.common.collect.ImmutableList
 import com.notireader.app.databinding.ActivityGetPremiumBinding
 import com.notireader.app.presentation.main_screen_activity.MainActivity
 import com.notireader.app.util.PremiumManager
-import kotlin.collections.firstOrNull
-import kotlin.collections.isNullOrEmpty
 
 
 class GetPremiumActivity : AppCompatActivity(), PurchasesUpdatedListener {
@@ -56,6 +53,13 @@ class GetPremiumActivity : AppCompatActivity(), PurchasesUpdatedListener {
             startActivity(Intent(this, MainActivity::class.java))
             finish()
         }
+
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                startActivity(Intent(this@GetPremiumActivity, MainActivity::class.java))
+                finish()
+            }
+        })
 
         // Query product details and set offer token
         fun queryPremiumProduct() {

@@ -2,9 +2,47 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/nav_whatsapp"
-        android:title="WhatsApp" />
+        android:icon="@mipmap/ic_launcher"
+        android:title="WA Recovery" />
+
     <item
         android:id="@+id/nav_business"
+        android:icon="@drawable/ic_business"
         android:title="Business" />
+
+    <item
+        android:id="@+id/nav_remove_ads"
+        android:icon="@drawable/ic_remove_ads"
+        android:title="Remove Ads" />
+
+    <item
+        android:id="@+id/nav_customer_support"
+        android:icon="@android:drawable/stat_sys_headset"
+        android:title="Customer Support" />
+
+    <item
+        android:id="@+id/nav_rate_us"
+        android:icon="@android:drawable/star_big_off"
+        android:title="Rate us" />
+
+    <item
+        android:id="@+id/nav_privacy_policy"
+        android:icon="@drawable/ic_shield"
+        android:title="Privacy Policy" />
+
+    <item
+        android:id="@+id/nav_terms_and_condition"
+        android:icon="@drawable/ic_terms"
+        android:title="Terms and Condition" />
+
+    <item
+        android:id="@+id/nav_app_not_working"
+        android:icon="@android:drawable/ic_dialog_info"
+        android:title="App Not Working" />
+
+    <item
+        android:id="@+id/nav_share_app"
+        android:icon="@android:drawable/ic_menu_share"
+        android:title="Share" />
 </menu>
 

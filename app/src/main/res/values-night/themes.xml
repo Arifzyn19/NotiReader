@@ -1,6 +1,7 @@
 <resources>
     <!-- Base application theme. -->
     <style name="Base.Theme.NotiReader" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Force dark mode for the app -->
         <!-- Customize your dark theme here. -->
         <item name="android:colorBackground">@color/deep_charcoal</item>
         <item name="android:windowBackground">@color/deep_charcoal</item>

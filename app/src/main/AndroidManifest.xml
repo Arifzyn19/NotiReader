@@ -17,6 +17,15 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.NotiReader">
         <activity
+            android:name=".presentation.customer_support_screen_activity.CustomerSupportActivity"
+            android:exported="false" />
+        <activity
+            android:name=".presentation.terms_and_condition_screen_activity.TermsAndConditionActivity"
+            android:exported="false" />
+        <activity
+            android:name=".presentation.privacy_policy_screen_activity.PrivacyPolicyActivity"
+            android:exported="false" />
+        <activity
             android:name=".presentation.splash_screen_activity.SplashScreenActivity"
             android:exported="true">
             <intent-filter>

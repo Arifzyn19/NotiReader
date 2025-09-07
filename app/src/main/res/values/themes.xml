@@ -2,14 +2,13 @@
     <!-- Base application theme. -->
     <style name="Base.Theme.NotiReader" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
-        <item name="colorPrimary">@color/crystalline_blue_accent</item>
-        <item name="colorOnPrimary">@color/ethereal_white_foundation</item>
-        <item name="colorSurface">@color/luminous_lavender</item>
-        <item name="android:colorBackground">@color/ethereal_white_foundation</item>
-        <item name="android:windowBackground">@color/ethereal_white_foundation</item>
-        <item name="background">@color/ethereal_white_foundation</item>
-        <item name="colorOnSurface">@color/sophisticated_slate</item>
-        <item name="colorOutline">@color/whisper_gray_neutral</item>
+        <item name="colorPrimary">@color/whatsapp_primary_green</item>
+        <item name="colorSurface">@color/elevated_surface_grey</item>
+        <item name="android:colorBackground">@color/deep_charcoal</item>
+        <item name="android:windowBackground">@color/deep_charcoal</item>
+        <item name="background">@color/deep_charcoal</item>
+        <item name="colorOnSurface">@color/warm_white</item>
+        <item name="colorSecondary">@color/whatsapp_secondary_green</item>
     </style>
 
     <style name="Theme.NotiReader" parent="Base.Theme.NotiReader" />

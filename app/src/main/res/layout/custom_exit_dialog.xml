@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<carbon.widget.RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="16dp"
+    android:background="@drawable/glassmorphism_exit_dialog_bg"
+    android:elevation="8dp"
+    android:padding="24dp"
+    app:carbon_cornerRadius="20dp">
+
+    <!-- Content container with glassmorphism -->
+    <carbon.widget.LinearLayout
+        android:id="@+id/content_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@drawable/inner_glass_surface"
+        android:padding="20dp"
+        app:carbon_cornerRadius="16dp"
+        app:carbon_elevation="2dp">
+
+        <!-- Icon with glassmorphism effect -->
+        <carbon.widget.FrameLayout
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:layout_gravity="center"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/glass_icon_background"
+            app:carbon_cornerRadius="28dp"
+            app:carbon_elevation="4dp">
+
+            <carbon.widget.ImageView
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_lightbulb"
+                android:alpha="0.9"
+                app:tint="@color/whatsapp_primary_green" />
+
+        </carbon.widget.FrameLayout>
+
+        <!-- Title with enhanced typography -->
+        <carbon.widget.TextView
+            android:id="@+id/dialog_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:fontFamily="sans-serif-medium"
+            android:gravity="center"
+            android:text="Exit Application"
+            android:textColor="@color/warm_white"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:letterSpacing="0.01" />
+
+        <!-- Message with glassmorphism text treatment -->
+        <carbon.widget.TextView
+            android:id="@+id/dialog_message"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            android:fontFamily="sans-serif"
+            android:gravity="center"
+            android:lineSpacingExtra="2dp"
+            android:text="Are you sure you want to exit Noti Reader?\nDon't worry your message recovery will continue."
+            android:textColor="@color/text_secondary_dark"
+            android:textSize="14sp"
+            android:alpha="0.85" />
+
+        <!-- Button container with glassmorphism -->
+        <carbon.widget.LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="2"
+            android:gravity="center">
+
+            <!-- Cancel button with glass effect -->
+            <carbon.widget.Button
+                android:id="@+id/btn_cancel"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:layout_marginEnd="8dp"
+                android:background="@drawable/glass_button_secondary"
+                android:text="Cancel"
+                android:textColor="@color/text_primary_dark"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:fontFamily="sans-serif-medium"
+                android:letterSpacing="0.02"
+                app:carbon_cornerRadius="12dp"
+                app:carbon_elevation="2dp"
+                android:stateListAnimator="@null"
+                android:clickable="true"
+                android:focusable="true" />
+
+            <!-- Exit button with glassmorphism accent -->
+            <carbon.widget.Button
+                android:id="@+id/btn_exit"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:layout_marginStart="8dp"
+                android:background="@drawable/glass_button_primary"
+                android:text="Exit"
+                android:textColor="@color/warm_white"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:fontFamily="sans-serif-medium"
+                android:letterSpacing="0.02"
+                app:carbon_cornerRadius="12dp"
+                app:carbon_elevation="3dp"
+                android:stateListAnimator="@null"
+                android:clickable="true"
+                android:focusable="true" />
+
+        </carbon.widget.LinearLayout>
+
+    </carbon.widget.LinearLayout>
+
+    <!-- Glass overlay effect -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@id/content_container"
+        android:layout_alignBottom="@id/content_container"
+        android:background="@drawable/glass_overlay_gradient"
+        android:alpha="0.6"
+        app:carbon_cornerRadius="20dp" />
+
+    <!-- Ambient glow effect -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@id/content_container"
+        android:layout_alignBottom="@id/content_container"
+        android:background="@drawable/ambient_glow_effect"
+        android:alpha="0.3"
+        app:carbon_cornerRadius="20dp" />
+
+</carbon.widget.RelativeLayout>

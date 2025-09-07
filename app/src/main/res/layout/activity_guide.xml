@@ -37,7 +37,7 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginTop="8dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/adViewBanner"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/toolbar">
@@ -676,60 +676,60 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="4dp"
-                    android:drawableStart="@drawable/ic_arrow_right"
                     android:drawablePadding="8dp"
                     android:gravity="center_vertical"
-                    android:text="When a group or personal chat is muted"
+                    android:text="@string/reminder_1"
                     android:textAppearance="?attr/textAppearanceBodyMedium"
                     android:textColor="?attr/colorOnSurfaceVariant"
-                    android:textSize="14sp" />
+                    android:textSize="14sp"
+                    app:drawableStartCompat="@drawable/ic_arrow_right" />
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="4dp"
-                    android:drawableStart="@drawable/ic_arrow_right"
                     android:drawablePadding="8dp"
                     android:gravity="center_vertical"
-                    android:text="When the sender deletes messages while you're actively viewing the chat"
+                    android:text="@string/reminder_2"
                     android:textAppearance="?attr/textAppearanceBodyMedium"
                     android:textColor="?attr/colorOnSurfaceVariant"
-                    android:textSize="14sp" />
+                    android:textSize="14sp"
+                    app:drawableStartCompat="@drawable/ic_arrow_right" />
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="4dp"
-                    android:drawableStart="@drawable/ic_arrow_right"
                     android:drawablePadding="8dp"
                     android:gravity="center_vertical"
-                    android:text="When message notifications are turned off"
+                    android:text="@string/reminder_3"
                     android:textAppearance="?attr/textAppearanceBodyMedium"
                     android:textColor="?attr/colorOnSurfaceVariant"
-                    android:textSize="14sp" />
+                    android:textSize="14sp"
+                    app:drawableStartCompat="@drawable/ic_arrow_right" />
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="4dp"
-                    android:drawableStart="@drawable/ic_arrow_right"
                     android:drawablePadding="8dp"
                     android:gravity="center_vertical"
-                    android:text="When you're offline"
+                    android:text="@string/reminder_4"
                     android:textAppearance="?attr/textAppearanceBodyMedium"
                     android:textColor="?attr/colorOnSurfaceVariant"
-                    android:textSize="14sp" />
+                    android:textSize="14sp"
+                    app:drawableStartCompat="@drawable/ic_arrow_right" />
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:drawableStart="@drawable/ic_arrow_right"
                     android:drawablePadding="8dp"
                     android:gravity="center_vertical"
-                    android:text="For messages or media deleted before installing the app"
+                    android:text="@string/reminder_5"
                     android:textAppearance="?attr/textAppearanceBodyMedium"
                     android:textColor="?attr/colorOnSurfaceVariant"
-                    android:textSize="14sp" />
+                    android:textSize="14sp"
+                    app:drawableStartCompat="@drawable/ic_arrow_right" />
 
             </LinearLayout>
 
@@ -740,7 +740,7 @@
                 android:layout_marginBottom="16dp"
                 android:justificationMode="inter_word"
                 android:lineSpacingExtra="1dp"
-                android:text="Disclaimer: This app is committed to safeguarding your privacy. We do not collect, store, or transmit any personal data beyond your device. All product names, logos, brands, trademarks, and registered trademarks mentioned in this app are the property of their respective owners. We do not claim ownership of any of these. The use of company, product, or service names within this app is for identification purposes only. Such use does not imply endorsement, approval, or any affiliation with the owners of these names, trademarks, or brands. Please note that the 'Recover Deleted Messages' app is an independent creation and is not an official product of WhatsApp or any other social media platform. We are not affiliated, associated, authorized, endorsed, or officially connected with WhatsApp Inc. or any related entities."
+                android:text="@string/app_disclaimer"
                 android:textAppearance="?attr/textAppearanceBodySmall"
                 android:textColor="?attr/colorOnSurfaceVariant"
                 android:textSize="11sp" />
