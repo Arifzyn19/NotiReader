@@ -10,7 +10,7 @@
     <!-- Frosted glass overlay -->
     <item>
         <shape android:shape="oval">
-            <solid android:color="#08F0F6FC" />
+            <solid android:color="#12F0F6FC" />
         </shape>
     </item>
 

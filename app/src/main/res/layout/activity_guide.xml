@@ -9,26 +9,14 @@
         android:id="@+id/toolbar"
         android:layout_width="0dp"
         android:layout_height="56dp"
-        android:background="?attr/colorSurface"
+        android:background="@color/deep_charcoal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:navigationIcon="@drawable/ic_arrow_back"
+        app:titleTextColor="@color/white"
         app:navigationIconTint="@color/muted_silver"
         app:title="Guide">
-
-        <!-- Refresh Icon -->
-        <!--        <ImageView-->
-        <!--            android:id="@+id/ic_refresh"-->
-        <!--            android:layout_width="24dp"-->
-        <!--            android:layout_height="24dp"-->
-        <!--            android:layout_gravity="end"-->
-        <!--            android:layout_marginEnd="16dp"-->
-        <!--            android:background="?attr/selectableItemBackgroundBorderless"-->
-        <!--            android:contentDescription="Refresh"-->
-        <!--            android:padding="4dp"-->
-        <!--            android:src="@drawable/ic_refresh"-->
-        <!--            android:tint="?attr/colorOnSurface" />-->
 
     </com.google.android.material.appbar.MaterialToolbar>
 

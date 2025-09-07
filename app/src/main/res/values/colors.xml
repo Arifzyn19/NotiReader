@@ -21,6 +21,9 @@
     <color name="whatsapp_dark_green">#075E54</color>
     <color name="whatsapp_light_green">#DCF8C6</color>
 
+    <color name="whatsapp_dark_green_trans">#99053E37</color>
+    <color name="whatsapp_secondary_green_trans">#B3128C7E</color>
+
     <!-- Text Colors - Light Mode -->
     <color name="text_primary_light">#111827</color>
     <color name="text_secondary_light">#4B5563</color>

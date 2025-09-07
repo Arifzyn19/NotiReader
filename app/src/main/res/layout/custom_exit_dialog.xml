@@ -2,25 +2,20 @@
 <carbon.widget.RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginHorizontal="16dp"
-    android:background="@drawable/glassmorphism_exit_dialog_bg"
-    android:elevation="8dp"
-    android:padding="24dp"
-    app:carbon_cornerRadius="20dp">
+    android:layout_height="wrap_content">
 
-    <!-- Content container with glassmorphism -->
     <carbon.widget.LinearLayout
         android:id="@+id/content_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        app:carbon_strokeWidth="2dp"
+        app:carbon_stroke="#E6062E28"
         android:orientation="vertical"
-        android:background="@drawable/inner_glass_surface"
-        android:padding="20dp"
+        android:background="#B3062E28"
+        android:padding="16dp"
         app:carbon_cornerRadius="16dp"
         app:carbon_elevation="2dp">
 
-        <!-- Icon with glassmorphism effect -->
         <carbon.widget.FrameLayout
             android:layout_width="56dp"
             android:layout_height="56dp"
@@ -31,12 +26,11 @@
             app:carbon_elevation="4dp">
 
             <carbon.widget.ImageView
-                android:layout_width="28dp"
-                android:layout_height="28dp"
+                android:layout_width="34dp"
+                android:layout_height="34dp"
                 android:layout_gravity="center"
                 android:src="@drawable/ic_lightbulb"
-                android:alpha="0.9"
-                app:tint="@color/whatsapp_primary_green" />
+                app:carbon_tint="@color/white" />
 
         </carbon.widget.FrameLayout>
 
@@ -91,7 +85,6 @@
                 android:fontFamily="sans-serif-medium"
                 android:letterSpacing="0.02"
                 app:carbon_cornerRadius="12dp"
-                app:carbon_elevation="2dp"
                 android:stateListAnimator="@null"
                 android:clickable="true"
                 android:focusable="true" />
@@ -111,7 +104,6 @@
                 android:fontFamily="sans-serif-medium"
                 android:letterSpacing="0.02"
                 app:carbon_cornerRadius="12dp"
-                app:carbon_elevation="3dp"
                 android:stateListAnimator="@null"
                 android:clickable="true"
                 android:focusable="true" />
@@ -119,25 +111,5 @@
         </carbon.widget.LinearLayout>
 
     </carbon.widget.LinearLayout>
-
-    <!-- Glass overlay effect -->
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignTop="@id/content_container"
-        android:layout_alignBottom="@id/content_container"
-        android:background="@drawable/glass_overlay_gradient"
-        android:alpha="0.6"
-        app:carbon_cornerRadius="20dp" />
-
-    <!-- Ambient glow effect -->
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignTop="@id/content_container"
-        android:layout_alignBottom="@id/content_container"
-        android:background="@drawable/ambient_glow_effect"
-        android:alpha="0.3"
-        app:carbon_cornerRadius="20dp" />
 
 </carbon.widget.RelativeLayout>

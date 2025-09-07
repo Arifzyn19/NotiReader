@@ -3,15 +3,39 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".presentation.business_screen_fragment.BusinessFragment">
 
-    <carbon.widget.ImageView
+    <carbon.widget.LinearLayout
         android:id="@+id/img_no_messages"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:src="@drawable/img_no_messages"
-        android:visibility="gone" />
+        android:layout_marginHorizontal="16dp"
+        android:background="@color/whatsapp_dark_green_trans"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:paddingVertical="20dp"
+        android:visibility="gone"
+        app:carbon_cornerRadius="20dp"
+        app:carbon_stroke="@color/whatsapp_dark_green">
+
+        <carbon.widget.ImageView
+            android:layout_width="220dp"
+            android:layout_height="220dp"
+            android:src="@drawable/img_no_messages" />
+
+        <carbon.widget.TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:fontFamily="sans-serif"
+            android:gravity="center"
+            android:text="No Messages Yet, Please Check If All Permissions Are Allowed"
+            android:textColor="@color/white"
+            android:textSize="16sp" />
+
+    </carbon.widget.LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/senderRecyclerView"
