@@ -23,26 +23,28 @@ object AdManager {
     fun show(
         context: Context,
         adType: AdType,
-        unitId: String,
         container: ViewGroup? = null,
         options: AdOptionsModel = AdOptionsModel()
     ) {
-        Log.d("xyz", "AdManager.show called: adType=$adType, unitId=$unitId")
         when (adType) {
             AdType.BANNER -> {
                 Log.d("xyz", "Attempting to show banner ad")
+                val unitId = "ca-app-pub-8900849690463057/5193336448"
                 showBanner(context, unitId, container, options)
             }
             AdType.INTERSTITIAL -> {
                 Log.d("xyz", "Attempting to show interstitial ad")
+                val unitId = "ca-app-pub-8900849690463057/4002859881"
                 showInterstitial(context, unitId, options)
             }
             AdType.REWARDED -> {
                 Log.d("xyz", "Attempting to show rewarded ad")
+                val unitId = ""
                 showRewarded(context, unitId, options)
             }
             AdType.NATIVE -> {
                 Log.d("xyz", "Attempting to show native ad")
+                val unitId = ""
                 showNative(context, unitId, container, options)
             }
         }

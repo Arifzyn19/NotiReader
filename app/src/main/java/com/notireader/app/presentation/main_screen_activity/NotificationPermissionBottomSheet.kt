@@ -23,7 +23,7 @@ class NotificationPermissionBottomSheet : BottomSheetDialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.permissionTitle.text = "Notification Permission"
-        binding.permissionDescription.text = "This app needs notification access to read WhatsApp messages."
+        binding.permissionDescription.text = "This app needs notification access to read WA messages."
         binding.allowButton.setOnClickListener {
             val intent = Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
             startActivity(intent)

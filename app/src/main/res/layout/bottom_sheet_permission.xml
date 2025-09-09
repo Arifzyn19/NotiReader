@@ -20,7 +20,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="8dp"
-        android:text="This app needs notification access to read WhatsApp messages." />
+        android:text="This app needs notification access to read WA messages." />
 
     <Button
         android:id="@+id/allowButton"

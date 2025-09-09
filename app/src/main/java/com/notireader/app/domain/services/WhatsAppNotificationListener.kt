@@ -121,8 +121,8 @@ class WhatsAppNotificationListener : NotificationListenerService() {
                                     val appMediaRoot = waDir.findFile("com.notireader.app")
                                         ?: waDir.createDirectory("com.notireader.app")
                                     if (appMediaRoot != null) {
-                                        val appMediaDir = appMediaRoot.findFile("NotiReader_WhatsApp_Media")
-                                            ?: appMediaRoot.createDirectory("NotiReader_WhatsApp_Media")
+                                        val appMediaDir = appMediaRoot.findFile("NotiReader_WA_Media")
+                                            ?: appMediaRoot.createDirectory("NotiReader_WA_Media")
                                         if (appMediaDir != null) {
                                             val appTypeDir = appMediaDir.findFile(matchedType.value)
                                                 ?: appMediaDir.createDirectory(matchedType.value)

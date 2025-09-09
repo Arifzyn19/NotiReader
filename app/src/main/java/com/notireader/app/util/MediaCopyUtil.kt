@@ -10,9 +10,9 @@ object MediaCopyUtil {
         return try {
             val destFolder = DocumentFile.fromTreeUri(context, destFolderUri)
             Log.i("xyz", "destFolder: ${destFolder?.uri}")
-            // Use package name to create separate root folders for WhatsApp and WhatsApp Business
+
             val rootFolderName = when (sourcePackage) {
-                "com.whatsapp" -> "NotiReader_WhatsApp_Media"
+                "com.whatsapp" -> "NotiReader_WA_Media"
                 "com.whatsapp.w4b" -> "NotiReader_Business_Media"
                 else -> "NotiReader_Other_Media"
             }

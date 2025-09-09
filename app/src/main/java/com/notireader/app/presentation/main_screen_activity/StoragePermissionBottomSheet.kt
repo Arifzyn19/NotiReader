@@ -21,7 +21,7 @@ class StoragePermissionBottomSheet : BottomSheetDialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.permissionTitle.text = "Storage Permission"
-        binding.permissionDescription.text = "This app needs access to your WhatsApp media folder to save and display media."
+        binding.permissionDescription.text = "This app needs access to your WA media folder to save and display media."
         binding.allowButton.setOnClickListener {
             (activity as? MainActivity)?.checkAndRequestFolderPermission()
             dismiss()

@@ -7,4 +7,5 @@
     <string name="reminder_3">When message notifications are turned off</string>
     <string name="reminder_4">When you\'re offline</string>
     <string name="reminder_5">For messages or media deleted before installing the app</string>
+    <string name="premium_price">₹349</string>
 </resources>

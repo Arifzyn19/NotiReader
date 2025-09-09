@@ -3,10 +3,10 @@ package com.notireader.app.util
 import android.app.Dialog
 import android.content.Context
 import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
 import android.view.LayoutInflater
 import android.view.Window
 import android.view.WindowManager
+import androidx.core.graphics.drawable.toDrawable
 import com.notireader.app.databinding.CustomExitDialogBinding
 
 object ExitConfirmationDialog {
@@ -18,7 +18,7 @@ object ExitConfirmationDialog {
             requestWindowFeature(Window.FEATURE_NO_TITLE)
             setContentView(binding.root)
             window?.apply {
-                setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+                setBackgroundDrawable(Color.TRANSPARENT.toDrawable())
                 setDimAmount(0.6f)
                 setFlags(
                     WindowManager.LayoutParams.FLAG_DIM_BEHIND,

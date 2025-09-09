@@ -71,7 +71,6 @@ class GuideActivity : AppCompatActivity() {
 //            AdManager.show(
 //                context = this,
 //                adType = AdType.INTERSTITIAL,
-//                unitId = "ca-app-pub-3940256099942544/1033173712",
 //                container = binding.adViewBanner,
 //                options = AdOptionsModel()
 //            )
@@ -85,7 +84,6 @@ class GuideActivity : AppCompatActivity() {
             AdManager.show(
                 context = this,
                 adType = AdType.BANNER,
-                unitId = "ca-app-pub-3940256099942544/9214589741",
                 container = binding.adViewBanner,
                 options = AdOptionsModel()
             )

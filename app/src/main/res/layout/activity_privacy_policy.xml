@@ -1,242 +1,495 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/deep_charcoal"
-    android:orientation="vertical"
     tools:context=".presentation.privacy_policy_screen_activity.PrivacyPolicyActivity">
 
-    <!-- Header -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/elevated_surface_grey"
-        android:elevation="4dp"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:paddingHorizontal="16dp"
-        android:paddingVertical="16dp">
-
-        <ImageButton
-            android:id="@+id/backButton"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@drawable/ic_arrow_back"
-            android:contentDescription="Back"
-            app:tint="@color/warm_white" />
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_weight="1"
-            android:text="Privacy Policy"
-            android:textColor="@color/warm_white"
-            android:textSize="20sp"
-            android:textStyle="bold" />
-
-    </LinearLayout>
-
-    <!-- Content -->
-    <ScrollView
+    <View
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:fillViewport="true"
-        android:scrollbars="vertical">
+        android:background="@drawable/glass_background_gradient" />
+
+    <View
+        android:id="@+id/glassOverlay"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:alpha="0.6"
+        android:background="@drawable/enhanced_glass_overlay" />
+
+    <View
+        android:id="@+id/ambientGlow"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:alpha="0.3"
+        android:background="@drawable/ambient_glow_effect" />
+
+    <LinearLayout
+        android:id="@+id/contentContainer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/glass_content_surface"
+        android:clipToPadding="false"
+        android:orientation="vertical">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="20dp">
+            android:elevation="8dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="20dp"
+            android:paddingVertical="18dp">
 
-            <!-- Last Updated -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="24dp"
-                android:text="Last updated: September 7, 2025"
-                android:textColor="@color/text_secondary_dark"
-                android:textSize="14sp"
-                android:gravity="center" />
+            <ImageView
+                android:id="@+id/backButton"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:clickable="true"
+                android:contentDescription="Back"
+                android:focusable="true"
+                android:src="@drawable/ic_arrow_back"
+                app:tint="@color/warm_white" />
 
-            <!-- Introduction -->
             <TextView
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="20dp"
-                android:text="Introduction"
-                android:textColor="@color/whatsapp_primary_green"
-                android:textSize="18sp"
+                android:layout_marginStart="18dp"
+                android:layout_weight="1"
+                android:letterSpacing="0.02"
+                android:text="Privacy Policy"
+                android:textColor="@color/warm_white"
+                android:textSize="22sp"
                 android:textStyle="bold" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="24dp"
-                android:lineSpacingMultiplier="1.4"
-                android:text="Welcome to Noti Reader (&quot;we,&quot; &quot;our,&quot; or &quot;us&quot;). This Privacy Policy explains how our notification reading service operates and our commitment to protecting your privacy.\n\nNoti Reader is an independent application that helps users recover and backup WhatsApp messages by reading device notifications. We are not affiliated with, endorsed by, or connected to WhatsApp Inc. or Meta Platforms, Inc."
-                android:textColor="@color/text_primary_dark"
-                android:textSize="15sp" />
-
-            <!-- What We Do -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="20dp"
-                android:text="What Our App Does"
-                android:textColor="@color/whatsapp_primary_green"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="24dp"
-                android:lineSpacingMultiplier="1.4"
-                android:text="• Reads WhatsApp notifications from your device\n• Helps recover deleted messages before they disappear\n• Automatically saves media files shared in WhatsApp\n• Provides a backup solution for important conversations\n• Works with both personal and business WhatsApp accounts\n\nOur app operates entirely on your device and does not send your messages or data to external servers."
-                android:textColor="@color/text_primary_dark"
-                android:textSize="15sp" />
-
-            <!-- Data Collection -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="20dp"
-                android:text="Data Collection and Processing"
-                android:textColor="@color/whatsapp_primary_green"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="24dp"
-                android:lineSpacingMultiplier="1.4"
-                android:text="Information We Process:\n• WhatsApp notification content (messages, media, sender information)\n• Message timestamps and metadata\n• Media files (photos, videos, documents, voice notes)\n\nInformation We DO NOT Collect:\n• Your WhatsApp account credentials\n• Your phone number or contact list\n• Messages from other apps\n• Personal information beyond notification content\n• Location data\n• Device identifiers for tracking purposes\n\nAll data remains stored locally on your device. We do not transmit, upload, or share your messages with third parties."
-                android:textColor="@color/text_primary_dark"
-                android:textSize="15sp" />
-
-            <!-- Permissions -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="20dp"
-                android:text="Required Permissions"
-                android:textColor="@color/whatsapp_primary_green"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="24dp"
-                android:lineSpacingMultiplier="1.4"
-                android:text="• Notification Access: Required to read WhatsApp notifications\n• Storage Access: Required to save and organize media files\n• File Access: Required to create backups of your messages\n\nThese permissions are used solely for the app's core functionality of message recovery and backup."
-                android:textColor="@color/text_primary_dark"
-                android:textSize="15sp" />
-
-            <!-- Data Security -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="20dp"
-                android:text="Data Security"
-                android:textColor="@color/whatsapp_primary_green"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="24dp"
-                android:lineSpacingMultiplier="1.4"
-                android:text="• All data is stored locally on your device using Android's secure storage\n• No data is transmitted to external servers\n• Media files are saved in your device's private app directory\n• You maintain complete control over your data\n• Data is automatically deleted when you uninstall the app"
-                android:textColor="@color/text_primary_dark"
-                android:textSize="15sp" />
-
-            <!-- User Rights -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="20dp"
-                android:text="Your Rights and Control"
-                android:textColor="@color/whatsapp_primary_green"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="24dp"
-                android:lineSpacingMultiplier="1.4"
-                android:text="• You can disable notification access at any time through Android settings\n• You can delete individual messages or entire conversations within the app\n• You can clear all app data through Android app settings\n• You can uninstall the app to completely remove all stored data\n• You have full control over which notifications the app can access"
-                android:textColor="@color/text_primary_dark"
-                android:textSize="15sp" />
-
-            <!-- Third Party Services -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="20dp"
-                android:text="Third-Party Services"
-                android:textColor="@color/whatsapp_primary_green"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="24dp"
-                android:lineSpacingMultiplier="1.4"
-                android:text="Our app may include:\n• Google AdMob for advertising (in free version)\n• Google Play Billing for premium purchases\n\nThese services have their own privacy policies and operate independently from our message reading functionality."
-                android:textColor="@color/text_primary_dark"
-                android:textSize="15sp" />
-
-            <!-- Important Disclaimers -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="20dp"
-                android:text="Important Disclaimers"
-                android:textColor="@color/whatsapp_primary_green"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="24dp"
-                android:lineSpacingMultiplier="1.4"
-                android:text="• Noti Reader is an independent third-party application\n• We are not affiliated with WhatsApp Inc., Meta Platforms, or any related companies\n• WhatsApp® is a trademark of WhatsApp Inc.\n• This app reads publicly available notification data provided by the Android system\n• We do not bypass any WhatsApp security measures\n• Use of this app is at your own discretion and responsibility"
-                android:textColor="@color/text_primary_dark"
-                android:textSize="15sp" />
-
-            <!-- Contact -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="20dp"
-                android:text="Contact Us"
-                android:textColor="@color/whatsapp_primary_green"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="32dp"
-                android:lineSpacingMultiplier="1.4"
-                android:text="If you have questions about this Privacy Policy or how your data is handled, please contact us through the Customer Support option in the app menu.\n\nBy using Noti Reader, you acknowledge that you have read and understood this Privacy Policy."
-                android:textColor="@color/text_primary_dark"
-                android:textSize="15sp" />
 
         </LinearLayout>
 
-    </ScrollView>
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fadeScrollbars="true"
+            android:fillViewport="true"
+            android:overScrollMode="never"
+            android:scrollbars="none">
 
-</LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clipChildren="false"
+                android:orientation="vertical"
+                android:padding="24dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="28dp"
+                    android:background="@drawable/glass_info_card"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:letterSpacing="0.1"
+                        android:text="Last Updated"
+                        android:textColor="@color/whatsapp_primary_green"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="September 7, 2025"
+                        android:textColor="@color/text_primary_dark"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="24dp"
+                    android:background="@drawable/glass_section_card"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
+                        android:letterSpacing="0.02"
+                        android:text="Introduction"
+                        android:textColor="@color/whatsapp_primary_green"
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:alpha="0.9"
+                        android:lineSpacingMultiplier="1.3"
+                        android:text="Tech Nukti Media (&quot;we,&quot; &quot;our,&quot; or &quot;us&quot;) operates the mobile application NotiReader (&quot;App&quot;) available on Android. This Privacy Policy explains how we collect, use, and protect your information when you use our App."
+                        android:textColor="@color/text_primary_dark"
+                        android:textSize="15sp" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="24dp"
+                    android:background="@drawable/glass_section_card"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
+                        android:letterSpacing="0.02"
+                        android:text="Information We Collect"
+                        android:textColor="@color/whatsapp_primary_green"
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
+                        android:alpha="0.9"
+                        android:lineSpacingMultiplier="1.3"
+                        android:text="Our app collects notification data from your device to retrieve deleted WA messages. This includes:"
+                        android:textColor="@color/text_primary_dark"
+                        android:textSize="15sp" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:alpha="0.9"
+                        android:lineSpacingMultiplier="1.3"
+                        android:text="• Message Content"
+                        android:textColor="@color/text_primary_dark"
+                        android:textSize="15sp" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:alpha="0.9"
+                        android:lineSpacingMultiplier="1.3"
+                        android:text="• Sender name"
+                        android:textColor="@color/text_primary_dark"
+                        android:textSize="15sp" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
+                        android:alpha="0.9"
+                        android:lineSpacingMultiplier="1.3"
+                        android:text="• Timestamps"
+                        android:textColor="@color/text_primary_dark"
+                        android:textSize="15sp" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
+                        android:alpha="0.9"
+                        android:lineSpacingMultiplier="1.3"
+                        android:text="We do not access or store your WhatsApp messages directly from the app."
+                        android:textColor="@color/text_primary_dark"
+                        android:textSize="15sp" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
+                        android:alpha="0.9"
+                        android:lineSpacingMultiplier="1.3"
+                        android:text="We may collect limited technical information such as:"
+                        android:textColor="@color/text_primary_dark"
+                        android:textSize="15sp" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:alpha="0.9"
+                        android:lineSpacingMultiplier="1.3"
+                        android:text="• Device model and OS version"
+                        android:textColor="@color/text_primary_dark"
+                        android:textSize="15sp" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:alpha="0.9"
+                        android:lineSpacingMultiplier="1.3"
+                        android:text="• App usage statistics"
+                        android:textColor="@color/text_primary_dark"
+                        android:textSize="15sp" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
+                        android:alpha="0.9"
+                        android:lineSpacingMultiplier="1.3"
+                        android:text="• Crash logs"
+                        android:textColor="@color/text_primary_dark"
+                        android:textSize="15sp" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="24dp"
+                    android:background="@drawable/glass_section_card"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
+                        android:letterSpacing="0.02"
+                        android:text="How We Use Your Information"
+                        android:textColor="@color/whatsapp_primary_green"
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
+                        android:alpha="0.9"
+                        android:lineSpacingMultiplier="1.3"
+                        android:text="We use the collected data to:"
+                        android:textColor="@color/text_primary_dark"
+                        android:textSize="15sp" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:alpha="0.9"
+                        android:lineSpacingMultiplier="1.3"
+                        android:text="• Enable WA message recovery features"
+                        android:textColor="@color/text_primary_dark"
+                        android:textSize="15sp" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:alpha="0.9"
+                        android:lineSpacingMultiplier="1.3"
+                        android:text="• Improve app performance and user experience"
+                        android:textColor="@color/text_primary_dark"
+                        android:textSize="15sp" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:alpha="0.9"
+                        android:lineSpacingMultiplier="1.3"
+                        android:text="• Display personalized or contextual ads"
+                        android:textColor="@color/text_primary_dark"
+                        android:textSize="15sp" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:alpha="0.9"
+                        android:lineSpacingMultiplier="1.3"
+                        android:text="• Monitor app stability and fix bugs"
+                        android:textColor="@color/text_primary_dark"
+                        android:textSize="15sp" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="24dp"
+                    android:background="@drawable/glass_section_card"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
+                        android:letterSpacing="0.02"
+                        android:text="In-App Purchases"
+                        android:textColor="@color/whatsapp_primary_green"
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:alpha="0.9"
+                        android:lineSpacingMultiplier="1.3"
+                        android:text="The app offers a premium subscription at ₹349/month, which may remove ads or unlock extra features. All purchases are processed securely via Google Play Billing. We do not store your payment details."
+                        android:textColor="@color/text_primary_dark"
+                        android:textSize="15sp" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="24dp"
+                    android:background="@drawable/glass_section_card"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
+                        android:letterSpacing="0.02"
+                        android:text="Data Security"
+                        android:textColor="@color/whatsapp_primary_green"
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:alpha="0.9"
+                        android:lineSpacingMultiplier="1.3"
+                        android:text="We take reasonable measures to protect your data. All notification data is processed locally on your device and is not stored on our servers. However, third-party services may collect anonymized data as explained above."
+                        android:textColor="@color/text_primary_dark"
+                        android:textSize="15sp" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="24dp"
+                    android:background="@drawable/glass_section_card"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
+                        android:letterSpacing="0.02"
+                        android:text="Children’s Privacy"
+                        android:textColor="@color/whatsapp_primary_green"
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:alpha="0.9"
+                        android:lineSpacingMultiplier="1.3"
+                        android:text="This app is not intended for children under 13 (or under 16 in some jurisdictions). We do not knowingly collect personal data from children."
+                        android:textColor="@color/text_primary_dark"
+                        android:textSize="15sp" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="24dp"
+                    android:background="@drawable/glass_section_card"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
+                        android:letterSpacing="0.02"
+                        android:text="Third-Party Services"
+                        android:textColor="@color/whatsapp_primary_green"
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:alpha="0.9"
+                        android:lineSpacingMultiplier="1.3"
+                        android:text="Our app may include:\n• Google AdMob (for advertising)\n• Firebase (for analytics and crash reporting)\n• Google Play Billing for premium purchases\n\nThese services have their own privacy policies and operate independently."
+                        android:textColor="@color/text_primary_dark"
+                        android:textSize="15sp" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="24dp"
+                    android:background="@drawable/glass_warning_card"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
+                        android:letterSpacing="0.02"
+                        android:text="Changes to This Policy"
+                        android:textColor="@color/whatsapp_primary_green"
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:alpha="0.9"
+                        android:lineSpacingMultiplier="1.3"
+                        android:text="We may update this Privacy Policy occasionally. Any changes will be posted on this page and, if significant, notified via the app. Continued use of the app means you accept the updated policy."
+                        android:textColor="@color/text_primary_dark"
+                        android:textSize="15sp" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="32dp"
+                    android:background="@drawable/glass_contact_card"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
+                        android:letterSpacing="0.02"
+                        android:text="Contact Us"
+                        android:textColor="@color/whatsapp_primary_green"
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:alpha="0.9"
+                        android:lineSpacingMultiplier="1.3"
+                        android:text="If you have any questions about this Privacy Policy, contact us at:\nTech Nukti Media\nEmail: support@technukti.com"
+                        android:textColor="@color/text_primary_dark"
+                        android:textSize="15sp" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </ScrollView>
+
+    </LinearLayout>
+
+</FrameLayout>
