@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "642446514420",
-    "project_id": "notireader-79f01",
-    "storage_bucket": "notireader-79f01.firebasestorage.app"
+    "project_number": "545322984559",
+    "project_id": "notireader-6d8a8",
+    "storage_bucket": "notireader-6d8a8.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:642446514420:android:01a96d22a84d3090da66a1",
+        "mobilesdk_app_id": "1:545322984559:android:f6234b9df2f911d0ae599a",
         "android_client_info": {
           "package_name": "com.notireader.app"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyBFQWFV8AEHzQ3S7svDHdjr2vM21Y09Hzc"
+          "current_key": "AIzaSyDftsUQSErsB35JCamJnlcVX82qOa9p-No"
         }
       ],
       "services": {

@@ -81,12 +81,13 @@ class GuideActivity : AppCompatActivity() {
         super.onResume()
         val isPremium = PremiumManager.isPremiumUnlocked(this)
         if (!isPremium) {
-            AdManager.show(
-                context = this,
-                adType = AdType.BANNER,
-                container = binding.adViewBanner,
-                options = AdOptionsModel()
-            )
+            // TODO: for development purposes
+//            AdManager.show(
+//                context = this,
+//                adType = AdType.BANNER,
+//                container = binding.adViewBanner,
+//                options = AdOptionsModel()
+//            )
         }
     }
 

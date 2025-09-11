@@ -101,8 +101,18 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 R.id.nav_customer_support -> {
-                    val intent = Intent(this, CustomerSupportActivity::class.java)
+//                    val intent = Intent(this, CustomerSupportActivity::class.java)
+//                    startActivity(intent)
+                    val intent = Intent(Intent.ACTION_SENDTO).apply {
+//                        setPackage("com.google.android.gm")
+                        data = "mailto:".toUri()
+                        putExtra(Intent.EXTRA_EMAIL, arrayOf("support@technukti.com"))
+                        putExtra(Intent.EXTRA_SUBJECT, "Feedback about the app")
+                        putExtra(Intent.EXTRA_TEXT, "Hi, I wanted to share...")
+                    }
+                    Log.d("xyz", "onCreate: mailto activity start")
                     startActivity(intent)
+
                 }
 
                 R.id.nav_rate_us -> {
@@ -194,12 +204,13 @@ class MainActivity : AppCompatActivity() {
             validateSavedFolderPermission()
         }
         if (!isPremium) {
-            AdManager.show(
-                context = this,
-                adType = AdType.BANNER,
-                container = binding.adViewBanner,
-                options = AdOptionsModel()
-            )
+            // TODO: for development purposes
+//            AdManager.show(
+//                context = this,
+//                adType = AdType.BANNER,
+//                container = binding.adViewBanner,
+//                options = AdOptionsModel()
+//            )
         }
     }
 

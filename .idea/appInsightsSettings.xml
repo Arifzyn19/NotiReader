@@ -10,9 +10,9 @@
               <option name="connection">
                 <ConnectionSetting>
                   <option name="appId" value="com.notireader.app" />
-                  <option name="mobileSdkAppId" value="1:642446514420:android:01a96d22a84d3090da66a1" />
-                  <option name="projectId" value="notireader-79f01" />
-                  <option name="projectNumber" value="642446514420" />
+                  <option name="mobileSdkAppId" value="1:545322984559:android:f6234b9df2f911d0ae599a" />
+                  <option name="projectId" value="notireader-6d8a8" />
+                  <option name="projectNumber" value="545322984559" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />
