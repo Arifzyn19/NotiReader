@@ -6,19 +6,27 @@ import android.util.Log
 import androidx.documentfile.provider.DocumentFile
 
 object MediaCopyUtil {
-    fun copyMediaFile(context: Context, sourceUri: Uri, destFolderUri: Uri, matchedType: String, newFileName: String, sourcePackage: String): Uri? {
+    fun copyMediaFile(
+        context: Context,
+        sourceUri: Uri,
+        matchedType: String,
+        newFileName: String,
+        sourcePackage: String
+    ): Uri? {
         return try {
-            val destFolder = DocumentFile.fromTreeUri(context, destFolderUri)
-            Log.i("xyz", "destFolder: ${destFolder?.uri}")
-
             val rootFolderName = when (sourcePackage) {
                 "com.whatsapp" -> "NotiReader_WA_Media"
                 "com.whatsapp.w4b" -> "NotiReader_Business_Media"
                 else -> "NotiReader_Other_Media"
             }
-            val appFolder = getOrCreateSubDir(destFolder, "com.notireader.app")
-            val rootDir = getOrCreateSubDir(appFolder, rootFolderName)
+
+            val appMediaRoot = DocumentFile.fromFile(context.getExternalFilesDir(null)!!)
+                .findFile("com.notireader.app")
+                ?: DocumentFile.fromFile(context.getExternalFilesDir(null)!!).createDirectory("com.notireader.app")
+
+            val rootDir = getOrCreateSubDir(appMediaRoot, rootFolderName)
             val destDir = getOrCreateSubDir(rootDir, matchedType)
+
             if (destDir != null) {
                 val mimeType = context.contentResolver.getType(sourceUri) ?: "application/octet-stream"
                 destDir.findFile(newFileName)?.delete()
@@ -45,7 +53,6 @@ object MediaCopyUtil {
 
     fun getOrCreateSubDir(parent: DocumentFile?, name: String): DocumentFile? {
         if (parent == null || !parent.isDirectory) return null
-
         var dir = parent.findFile(name)
         if (dir == null || !dir.isDirectory) {
             dir = parent.createDirectory(name)
