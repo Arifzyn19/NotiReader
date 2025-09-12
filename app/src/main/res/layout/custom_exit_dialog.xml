@@ -57,7 +57,7 @@
             android:fontFamily="sans-serif"
             android:gravity="center"
             android:lineSpacingExtra="2dp"
-            android:text="Are you sure you want to exit Noti Reader?\nDon't worry your message recovery will continue."
+            android:text="Are you sure you want to exit NotiReader?\nDon't worry your message recovery will continue."
             android:textColor="@color/text_secondary_dark"
             android:textSize="14sp"
             android:alpha="0.85" />

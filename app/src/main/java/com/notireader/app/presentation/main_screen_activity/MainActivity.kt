@@ -5,6 +5,7 @@ import android.content.ComponentName
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
@@ -20,6 +21,7 @@ import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
+import com.google.android.material.snackbar.Snackbar
 import com.notireader.app.R
 import com.notireader.app.databinding.ActivityMainBinding
 import com.notireader.app.domain.models.AdOptionsModel
@@ -49,6 +51,9 @@ class MainActivity : AppCompatActivity() {
         private const val PREFS_NAME = "noti_reader_prefs"
         private const val KEY_FOLDER_URI = "folder_uri"
     }
+
+    var noticeFrag: NotificationPermissionBottomSheet? = null
+    var storageFrag: StoragePermissionBottomSheet? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -93,7 +98,11 @@ class MainActivity : AppCompatActivity() {
 
                 R.id.nav_remove_ads -> {
                     if (isPremium) {
-                        Toast.makeText(this, "You already have premium version!", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            this,
+                            "You already have premium version!",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     } else {
                         val intent = Intent(this, GetPremiumActivity::class.java)
                         startActivity(intent)
@@ -141,6 +150,7 @@ class MainActivity : AppCompatActivity() {
             binding.drawerLayout.closeDrawers()
             true
         }
+//        binding.navigationView.itemIconTintList = null
         binding.viewPager.currentItem = 0
         binding.name.text = fragmentNames[0]
 
@@ -181,41 +191,30 @@ class MainActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        val isPremium = PremiumManager.isPremiumUnlocked(this)
-        if (!isPremium) {
-            // TODO: for development purposes
-//            AdManager.show(
-//                context = this,
-//                adType = AdType.INTERSTITIAL,
-//                container = binding.adViewBanner,
-//                options = AdOptionsModel()
-//            )
-        }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        val isPremium = PremiumManager.isPremiumUnlocked(this)
         if (!isNotificationServiceEnabled()) {
-            NotificationPermissionBottomSheet().show(supportFragmentManager, "notification_permission")
+            if (noticeFrag == null) {
+                noticeFrag = NotificationPermissionBottomSheet()
+            }
+            noticeFrag?.show(
+                supportFragmentManager,
+                "notification_permission"
+            )
         } else if (!isStoragePermissionGranted()) {
-            StoragePermissionBottomSheet().show(supportFragmentManager, "storage_permission")
+            if (storageFrag == null) {
+                storageFrag = StoragePermissionBottomSheet()
+            }
+            storageFrag?.show(supportFragmentManager, "storage_permission")
         } else {
             validateSavedFolderPermission()
         }
-        if (!isPremium) {
-            // TODO: for development purposes
-//            AdManager.show(
-//                context = this,
-//                adType = AdType.BANNER,
-//                container = binding.adViewBanner,
-//                options = AdOptionsModel()
-//            )
-        }
+        ensureMediaPermissions()
     }
 
     private fun isNotificationServiceEnabled(): Boolean {
-        val cn = ComponentName(this, com.notireader.app.domain.services.WhatsAppNotificationListener::class.java)
+        val cn = ComponentName(
+            this,
+            com.notireader.app.domain.services.WhatsAppNotificationListener::class.java
+        )
         val flat = Settings.Secure.getString(contentResolver, "enabled_notification_listeners")
         return flat != null && flat.contains(cn.flattenToString())
     }
@@ -230,7 +229,8 @@ class MainActivity : AppCompatActivity() {
         val savedUri = prefs.getString(KEY_FOLDER_URI, null)
 
         if (savedUri != null) {
-            val requiredUri = "content://com.android.externalstorage.documents/tree/primary:Android/media"
+            val requiredUri =
+                "content://com.android.externalstorage.documents/tree/primary:Android/media"
             val decodedSavedUri = Uri.decode(savedUri)
             val decodedRequiredUri = Uri.decode(requiredUri)
             if (decodedSavedUri == decodedRequiredUri || decodedSavedUri.endsWith("primary:Android/media")) {
@@ -238,7 +238,8 @@ class MainActivity : AppCompatActivity() {
             } else {
                 Log.w("xyz", "Invalid folder saved: $savedUri, forcing re-pick.")
                 prefs.edit { remove(KEY_FOLDER_URI) }
-                Toast.makeText(this, "Please select only Android/media folder", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Please select only Android/media folder", Toast.LENGTH_SHORT)
+                    .show()
                 checkAndRequestFolderPermission()
             }
         } else {
@@ -253,7 +254,8 @@ class MainActivity : AppCompatActivity() {
         if (savedUri == null) {
             val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE).apply {
                 putExtra(
-                    "android.provider.extra.INITIAL_URI", "content://com.android.externalstorage.documents/document/primary:Android/media".toUri()
+                    "android.provider.extra.INITIAL_URI",
+                    "content://com.android.externalstorage.documents/document/primary:Android/media".toUri()
                 )
                 addFlags(
                     Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION or Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION
@@ -276,7 +278,8 @@ class MainActivity : AppCompatActivity() {
                 val treeUri: Uri? = data?.data
                 if (treeUri != null) {
                     contentResolver.takePersistableUriPermission(
-                        treeUri, Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                        treeUri,
+                        Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
                     )
 
                     getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit {
@@ -297,14 +300,74 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+    private val MEDIA_PERMISSIONS = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        arrayOf(
+            android.Manifest.permission.READ_MEDIA_IMAGES,
+            android.Manifest.permission.READ_MEDIA_VIDEO,
+            android.Manifest.permission.READ_MEDIA_AUDIO
+        )
+    } else {
+        arrayOf(android.Manifest.permission.READ_EXTERNAL_STORAGE)
+    }
+
+    private val PERMISSION_REQUEST_CODE = 102
+
+    private fun ensureMediaPermissions() {
+        val missing = MEDIA_PERMISSIONS.filter {
+            checkSelfPermission(it) != PackageManager.PERMISSION_GRANTED
+        }
+        if (missing.isNotEmpty()) {
+            requestPermissions(missing.toTypedArray(), PERMISSION_REQUEST_CODE)
+        }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == 101) {
-            if (grantResults.any { it != PackageManager.PERMISSION_GRANTED }) {
-                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-                intent.data = Uri.fromParts("package", packageName, null)
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                startActivity(intent)
+
+        if (requestCode == PERMISSION_REQUEST_CODE) {
+            var allGranted = true
+            var permanentlyDenied = false
+
+            for ((i, perm) in permissions.withIndex()) {
+                if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
+                    allGranted = false
+                    if (!shouldShowRequestPermissionRationale(perm)) {
+                        permanentlyDenied = true
+                    }
+                }
+            }
+
+            if (allGranted) {
+                Toast.makeText(this, "All media permissions granted ✅", Toast.LENGTH_SHORT).show()
+            } else {
+                if (permanentlyDenied) {
+                    // User denied with "Don't ask again"
+                    Snackbar.make(
+                        findViewById(android.R.id.content),
+                        "Media permissions are required to copy WhatsApp media",
+                        Snackbar.LENGTH_INDEFINITE
+                    ).setAction("Settings") {
+                        val intent = Intent(
+                            Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                            Uri.fromParts("package", packageName, null)
+                        )
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        startActivity(intent)
+                    }.show()
+                } else {
+                    // User denied but not permanently — let them retry
+                    Snackbar.make(
+                        findViewById(android.R.id.content),
+                        "Media permissions denied. Needed to copy WhatsApp media.",
+                        Snackbar.LENGTH_INDEFINITE
+                    ).setAction("Grant") {
+                        ensureMediaPermissions()
+                    }.show()
+                }
             }
         }
     }

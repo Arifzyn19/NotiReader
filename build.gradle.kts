@@ -5,5 +5,6 @@ plugins {
     alias(libs.plugins.google.gms.google.services) apply false
     alias(libs.plugins.dagger.hilt) apply false
     id("com.google.devtools.ksp") version "2.2.10-2.0.2" apply false
+    alias(libs.plugins.google.firebase.crashlytics) apply false
 
 }

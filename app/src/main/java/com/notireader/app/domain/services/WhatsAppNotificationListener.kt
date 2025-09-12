@@ -1,355 +1,316 @@
 package com.notireader.app.domain.services
 
+import android.app.Service
+import android.content.ContentUris
+import android.content.ContentValues
+import android.content.Intent
+import android.database.Cursor
+import android.net.Uri
+import android.os.Build
+import android.os.ParcelFileDescriptor
+import android.provider.MediaStore
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.util.Log
-import androidx.core.net.toUri
-import androidx.documentfile.provider.DocumentFile
+import androidx.annotation.WorkerThread
 import com.notireader.app.domain.models.MessageModel
 import com.notireader.app.domain.repository.NotiRepository
-import com.notireader.app.util.MediaCopyUtil
-import com.notireader.app.util.MediaStoreUtil
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
+import org.checkerframework.checker.regex.qual.Regex
+import java.io.File
+import java.io.FileOutputStream
+import java.io.InputStream
+import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class WhatsAppNotificationListener : NotificationListenerService() {
+
     @Inject
     lateinit var notiRepository: NotiRepository
 
+    private val TAG = "WhatsAppNL"
+    private val serviceJob = SupervisorJob()
+    private val scope = CoroutineScope(Dispatchers.IO + serviceJob)
+
+    // Simple in-memory dedupe to avoid handling same notification multiple times in quick succession.
+    // Key => timestamp of last processed (millis)
+    private val recentHandled = ConcurrentHashMap<String, Long>()
+    private val DEDUPE_WINDOW_MS = 5_000L
+
+    override fun onDestroy() {
+        super.onDestroy()
+        serviceJob.cancel()
+    }
+
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
         super.onNotificationPosted(sbn)
-//        Log.d("xyz", "Notification received: ${sbn?.packageName}, id=${sbn?.id}, key=${sbn?.key}")
-        val validPackages = setOf("com.whatsapp", "com.whatsapp.w4b")
-        val sourcePackage = sbn?.packageName ?: ""
-        if (sourcePackage in validPackages) {
-            val isGroupSummary = sbn?.notification?.extras?.getBoolean("android.isGroupSummary", false)
-            if (isGroupSummary == true) {
-                Log.d("xyz", "Skipping group summary notification: id=${sbn.id}, key=${sbn.key}")
-                return
-            }
-            var title = sbn?.notification?.extras?.getString("android.title") ?: ""
-            var message = sbn?.notification?.extras?.getCharSequence("android.text")?.toString() ?: ""
-            val timeStamp = sbn?.postTime
-            val largeIcon = sbn?.notification?.largeIcon
-            val creationTime = sbn?.notification?.`when`
-//            Log.d("xyz", "creation time: ${sbn?.notification?.`when`}")
-            val newMsgRegex = Regex("\\d+ new messages", RegexOption.IGNORE_CASE)
-            if (newMsgRegex.containsMatchIn(title) || newMsgRegex.containsMatchIn(message) || title.equals("WhatsApp", ignoreCase = true)) {
-                Log.d("xyz", "Filtered out notification: title=$title, message=$message")
-                return
-            }
-            if (":" in title) {
-                val parts = title.split(":", limit = 2)
-                if (parts.size == 2) {
-                    val groupName = parts[0].replace(Regex("\\(.*messages.*\\)", RegexOption.IGNORE_CASE), "").trim()
-                    val senderName = parts[1].trim()
-                    message = if (message.startsWith(senderName)) message else "$senderName: $message"
-                    title = groupName
-                }
-            } else if (title.contains("(") && title.contains("new messages", ignoreCase = true)) {
-                title = title.replace(Regex("\\(.*new messages.*\\)", RegexOption.IGNORE_CASE), "").trim()
-            }
-            if (newMsgRegex.matches(message.trim())) {
-                Log.d("xyz", "Filtered out notification with 'new messages' as message: $message")
-                return
-            }
-            if (message.trim().equals("This message was deleted", ignoreCase = true)) {
-                Log.d("xyz", "Filtered out deleted message notification: $message")
-                return
-            }
-            Log.d("xyz", "Notification details: title=$title, message=$message, timeStamp=$timeStamp, creationTime=$creationTime")
-            val mediaTypes = mapOf(
-                "Photo" to "WhatsApp Images",
-                "Video" to "WhatsApp Video",
-                "Sticker" to "WhatsApp Stickers",
-                "GIF" to "WhatsApp Animated Gifs",
-                "Audio" to "WhatsApp Audio",
-                "Document" to "WhatsApp Documents",
-                "Voice message" to "WhatsApp Voice Notes"
-            )
-            var matchedType = mediaTypes.entries.find { entry ->
-                message.contains(entry.key, ignoreCase = true)
-            }
-            if (matchedType == null) {
-                val docExtensions = listOf(".pdf", ".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx", ".txt")
-                if (docExtensions.any { message.lowercase().contains(it) }) {
-                    matchedType = mapOf("Document" to "WhatsApp Documents").entries.first()
-                }
-            }
-            Log.d("xyz", "Matched media type: ${matchedType?.key} -> ${matchedType?.value}")
-            CoroutineScope(Dispatchers.IO).launch {
-                var mediaPathLocal: String? = null
-                if (matchedType != null) {
-                    try {
-                        var bestMatchFileUri: android.net.Uri? = null
+        if (sbn == null) return
 
-                        // PRIMARY: Try DocumentFile approach first (more reliable for WhatsApp)
-                        val prefs = getSharedPreferences("noti_reader_prefs", MODE_PRIVATE)
-                        val waMediaUriString = prefs.getString("folder_uri", null)
-                        Log.d("xyz", "waMediaUriString: $waMediaUriString")
+        val pkg = sbn.packageName ?: return
+        if (pkg != "com.whatsapp" && pkg != "com.whatsapp.w4b") return
 
-                        if (waMediaUriString != null) {
-                            val waMediaUri = waMediaUriString.toUri()
-                            val waDir = DocumentFile.fromTreeUri(this@WhatsAppNotificationListener, waMediaUri)
-                            Log.d("xyz", "waDir: ${waDir?.uri}")
+        val extras = sbn.notification.extras
+        val title = extras.getString("android.title") ?: ""
+        val message = extras.getCharSequence("android.text")?.toString() ?: ""
+        val timeStamp = sbn.postTime ?: System.currentTimeMillis()
 
-                            val comWhatsappDir = waDir?.findFile(
-                                if (sourcePackage == "com.whatsapp.w4b") "com.whatsapp.w4b" else "com.whatsapp"
-                            )
-                            val whatsAppDir = comWhatsappDir?.findFile(
-                                if (sourcePackage == "com.whatsapp.w4b") "WhatsApp Business" else "WhatsApp"
-                            )
-                            val mediaDir = whatsAppDir?.findFile("Media")
-                            val subDir = mediaDir?.findFile(matchedType.value)
-                            Log.d("xyz", "subDir: ${subDir?.uri}")
+        // Basic filtering (same as before)
+        val newMsgRegex = Regex("\\d+ new messages", RegexOption.IGNORE_CASE)
+        if (newMsgRegex.containsMatchIn(title) || newMsgRegex.containsMatchIn(message) || title.equals("WhatsApp", ignoreCase = true)) {
+            Log.d(TAG, "Filtered summary/new messages")
+            return
+        }
+        if (message.trim().equals("This message was deleted", ignoreCase = true)) {
+            Log.d(TAG, "Filtered deleted message")
+            return
+        }
 
-                            if (subDir != null) {
-                                val files = when (matchedType.value) {
-                                    "WhatsApp Voice Notes" -> {
-                                        val validVoiceExtensions = listOf(".opus", ".m4a", ".mp3", ".wav")
-                                        subDir.listFiles()
-                                            .filter { it.isDirectory }
-                                            .flatMap { it.listFiles().toList() }
-                                            .filter {
-                                                it.isFile && it.name?.let { name ->
-                                                    validVoiceExtensions.any { ext -> name.endsWith(ext, ignoreCase = true) }
-                                                } == true
-                                            }
-                                    }
-                                    else -> {
-                                        subDir.listFiles().filter { it.isFile && it.name != ".nomedia" }
-                                    }
-                                }
+        // dedupe key: package + title + message + approximate time
+        val dedupeKey = "$pkg|$title|${message.take(100)}"
+        val last = recentHandled[dedupeKey] ?: 0L
+        if (System.currentTimeMillis() - last < DEDUPE_WINDOW_MS) {
+            Log.d(TAG, "Skipping duplicate notification (dedupe)")
+            return
+        }
+        recentHandled[dedupeKey] = System.currentTimeMillis()
 
-                                // Find the file with timestamp closest to the notification timestamp
-                                val notificationTime = timeStamp ?: creationTime ?: System.currentTimeMillis()
-                                val bestMatchFile = findBestMatchingFile(files, notificationTime)
-                                Log.d("xyz", "DocumentFile bestMatchFile: ${bestMatchFile?.uri}")
+        // Determine media type (Image/Video/Audio/Document/Sticker/GIF)
+        val mediaTypes = mapOf(
+            "Photo" to MediaKind.IMAGE,
+            "Image" to MediaKind.IMAGE,
+            "Video" to MediaKind.VIDEO,
+            "GIF" to MediaKind.IMAGE,
+            "Sticker" to MediaKind.IMAGE,
+            "Audio" to MediaKind.AUDIO,
+            "Voice message" to MediaKind.AUDIO,
+            "Document" to MediaKind.DOCUMENT
+        )
 
-                                if (bestMatchFile != null) {
-                                    // Copy using existing DocumentFile method
-                                    val appMediaRoot = waDir.findFile("com.notireader.app")
-                                        ?: waDir.createDirectory("com.notireader.app")
-                                    if (appMediaRoot != null) {
-                                        val rootFolderName = when (sourcePackage) {
-                                            "com.whatsapp" -> "NotiReader_WA_Media"
-                                            "com.whatsapp.w4b" -> "NotiReader_Business_Media"
-                                            else -> "NotiReader_Other_Media"
-                                        }
-                                        val appMediaDir = appMediaRoot.findFile(rootFolderName)
-                                            ?: appMediaRoot.createDirectory(rootFolderName)
-                                        if (appMediaDir != null) {
-                                            val appTypeDir = appMediaDir.findFile(matchedType.value)
-                                                ?: appMediaDir.createDirectory(matchedType.value)
-                                            Log.d("xyz", "appTypeDir: ${appTypeDir?.uri}")
-                                            if (appTypeDir != null) {
-                                                val ext = bestMatchFile.name?.substringAfterLast('.', "") ?: ""
-                                                val newFileName = "${title}_${timeStamp}.${ext}"
-                                                val copiedUri = MediaCopyUtil.copyMediaFile(
-                                                    this@WhatsAppNotificationListener,
-                                                    bestMatchFile.uri,
-                                                    appTypeDir.uri,
-                                                    matchedType.value,
-                                                    newFileName,
-                                                    sourcePackage
-                                                )
-                                                Log.d("xyz", "DocumentFile copiedUri: $copiedUri")
-                                                mediaPathLocal = copiedUri?.toString()
-                                                bestMatchFileUri = bestMatchFile.uri
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
+        var matchedKind: MediaKind? = mediaTypes.entries.find { (k, _) ->
+            message.contains(k, ignoreCase = true)
+        }?.value
 
-                        // FALLBACK: If DocumentFile didn't find a file, try MediaStore API
-                        if (bestMatchFileUri == null) {
-                            Log.d("xyz", "DocumentFile failed, trying MediaStore API as fallback")
-                            val mediaStoreUri = MediaStoreUtil.findMediaUsingMediaStore(
-                                this@WhatsAppNotificationListener,
-                                matchedType.key,
-                                timeStamp ?: creationTime,
-                                sourcePackage
-                            )
+        // fallback to extension check
+        if (matchedKind == null) {
+            val extList = listOf(".pdf", ".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx", ".txt")
+            if (extList.any { message.lowercase().contains(it) }) matchedKind = MediaKind.DOCUMENT
+        }
 
-                            if (mediaStoreUri != null) {
-                                Log.d("xyz", "MediaStore found file: $mediaStoreUri")
-                                val ext = getFileExtensionFromUri(mediaStoreUri) ?: ""
-                                val newFileName = "${title}_${timeStamp}.${ext}"
-
-                                val copiedUri = MediaStoreUtil.copyMediaStoreFileToAppStorage(
-                                    this@WhatsAppNotificationListener,
-                                    mediaStoreUri,
-                                    matchedType.value,
-                                    newFileName,
-                                    sourcePackage
-                                )
-                                Log.d("xyz", "MediaStore copiedUri: $copiedUri")
-                                mediaPathLocal = copiedUri?.toString()
-                            }
-                        }
-
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                        Log.e("xyz", "Exception during media copy", e)
-                    }
-                }
-
+        scope.launch {
+            try {
+                val mediaUriString = findAndCopyWhatsAppMedia(matchedKind, timeStamp, title)
                 val messageModel = MessageModel(
                     sender = title,
                     message = message,
-                    timestamp = timeStamp!!,
+                    timestamp = timeStamp,
                     isDeleted = false,
-                    mediaPath = mediaPathLocal,
-                    sourcePackage = sourcePackage,
-                    iconRes = largeIcon,
+                    mediaPath = mediaUriString,
+                    sourcePackage = pkg,
+                    iconRes = sbn.notification.largeIcon
                 )
                 notiRepository.onWhatsAppNotificationReceived(messageModel)
-                Log.d("xyz", "onWhatsAppNotificationReceived: $messageModel")
+                Log.d(TAG, "Processed notification: $messageModel")
+            } catch (t: Throwable) {
+                Log.e(TAG, "Error handling notification", t)
             }
-//            cancelNotification(sbn.key)
-            return
         }
     }
 
-    override fun onNotificationRemoved(sbn: StatusBarNotification?, rankingMap: RankingMap?, reason: Int) {
-        super.onNotificationRemoved(sbn, rankingMap, reason)
-        if (sbn?.packageName == "com.whatsapp") {
-            if (reason == REASON_APP_CANCEL) {
-                val title = sbn.notification.extras.getString("android.title") ?: ""
-                val message = sbn.notification.extras.getCharSequence("android.text")?.toString() ?: ""
-                val timeStamp = sbn.postTime
-                CoroutineScope(Dispatchers.IO).launch {
-                    notiRepository.markMessageAsDeletedByDetails(title, message, timeStamp)
+    /**
+     * Attempts to find the best matching media file in MediaStore for WhatsApp and copy
+     * it into the app-specific external files dir. Returns the copied file absolute path
+     * (String) or null when none found.
+     */
+    @WorkerThread
+    private fun findAndCopyWhatsAppMedia(kind: MediaKind?, notificationTime: Long, title: String): String? {
+        if (kind == null) {
+            Log.d(TAG, "No media type matched in notification")
+            return null
+        }
+
+        // Ensure we have READ_MEDIA permissions. The host app is expected to handle permission flow.
+        if (!hasRequiredMediaPermission(kind)) {
+            Log.w(TAG, "Missing required READ_MEDIA permission for $kind")
+            return null
+        }
+
+        // Query window (seconds). Start with +/- 120s then expand to +/- 1 day if not found.
+        val windows = listOf(120L, 600L, 86_400L) // seconds
+        val notificationTimeSeconds = notificationTime / 1000L
+
+        for (window in windows) {
+            val min = notificationTimeSeconds - window
+            val max = notificationTimeSeconds + window
+            val candidates = queryMediaStoreCandidates(kind, min, max)
+            if (candidates.isNotEmpty()) {
+                // pick candidate whose DATE_MODIFIED is closest to notificationTimeSeconds
+                val best = candidates.minByOrNull { candidate ->
+                    kotlin.math.abs(candidate.dateModified - notificationTimeSeconds)
+                }
+                best?.let {
+                    return copyMediaToAppDir(it.uri, it.displayName, kind, title, notificationTime)
                 }
             }
         }
-    }
 
-    private fun findBestMatchingFile(files: List<DocumentFile>, notificationTime: Long): DocumentFile? {
-        if (files.isEmpty()) return null
-
-        if (files.size == 1) return files.first()
-
-        val filesWithTimestamps = files.mapNotNull { file ->
-            val filename = file.name ?: return@mapNotNull null
-            val timestamp = extractTimestampFromFilename(filename)
-            if (timestamp != null) {
-                file to timestamp
-            } else {
-                file to file.lastModified()
-            }
-        }
-
-        if (filesWithTimestamps.isEmpty()) {
-            return files.maxByOrNull { it.lastModified() }
-        }
-
-        return filesWithTimestamps.minByOrNull { (_, fileTime) ->
-            kotlin.math.abs(fileTime - notificationTime)
-        }?.first
-    }
-
-    private fun extractTimestampFromFilename(filename: String): Long? {
-        try {
-            val pattern1 = Regex("(IMG|VID|AUD|DOC)-(\\d{8})-WA\\d+\\.")
-            val match1 = pattern1.find(filename)
-            if (match1 != null) {
-                val dateStr = match1.groupValues[2]
-                return parseWhatsAppDate(dateStr)
-            }
-
-            val pattern2 = Regex("(IMG|VID|AUD)_(\\d{8})_(\\d{6})\\.")
-            val match2 = pattern2.find(filename)
-            if (match2 != null) {
-                val dateStr = match2.groupValues[2]
-                val timeStr = match2.groupValues[3]
-                return parseWhatsAppDateTime(dateStr, timeStr)
-            }
-
-            val pattern3 = Regex("PTT-(\\d{8})-WA\\d+\\.")
-            val match3 = pattern3.find(filename)
-            if (match3 != null) {
-                val dateStr = match3.groupValues[1]
-                return parseWhatsAppDate(dateStr)
-            }
-
-        } catch (e: Exception) {
-            Log.w("xyz", "Error parsing timestamp from filename: $filename", e)
-        }
+        Log.d(TAG, "No matching WhatsApp media found for kind=$kind")
         return null
     }
 
-    private fun parseWhatsAppDate(dateStr: String): Long? {
-        try {
-            if (dateStr.length != 8) return null
-            val year = dateStr.substring(0, 4).toInt()
-            val month = dateStr.substring(4, 6).toInt() - 1
-            val day = dateStr.substring(6, 8).toInt()
-
-            val calendar = java.util.Calendar.getInstance()
-            calendar.set(year, month, day, 0, 0, 0)
-            calendar.set(java.util.Calendar.MILLISECOND, 0)
-            return calendar.timeInMillis
-        } catch (e: Exception) {
-            return null
+    private fun hasRequiredMediaPermission(kind: MediaKind): Boolean {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            when (kind) {
+                MediaKind.IMAGE -> checkSelfPermission(android.Manifest.permission.READ_MEDIA_IMAGES) == android.content.pm.PackageManager.PERMISSION_GRANTED
+                MediaKind.VIDEO -> checkSelfPermission(android.Manifest.permission.READ_MEDIA_VIDEO) == android.content.pm.PackageManager.PERMISSION_GRANTED
+                MediaKind.AUDIO, MediaKind.DOCUMENT -> checkSelfPermission(android.Manifest.permission.READ_MEDIA_AUDIO) == android.content.pm.PackageManager.PERMISSION_GRANTED
+            }
+        } else {
+            // For older devices, either READ_EXTERNAL_STORAGE or nothing depending on your target
+            true
         }
     }
 
-    private fun parseWhatsAppDateTime(dateStr: String, timeStr: String): Long? {
-        try {
-            if (dateStr.length != 8 || timeStr.length != 6) return null
-            val year = dateStr.substring(0, 4).toInt()
-            val month = dateStr.substring(4, 6).toInt() - 1
-            val day = dateStr.substring(6, 8).toInt()
-            val hour = timeStr.substring(0, 2).toInt()
-            val minute = timeStr.substring(2, 4).toInt()
-            val second = timeStr.substring(4, 6).toInt()
+    private data class MediaCandidate(val uri: Uri, val displayName: String, val dateModified: Long)
 
-            val calendar = java.util.Calendar.getInstance()
-            calendar.set(year, month, day, hour, minute, second)
-            calendar.set(java.util.Calendar.MILLISECOND, 0)
-            return calendar.timeInMillis
-        } catch (e: Exception) {
-            return null
+    /**
+     * Query MediaStore for WhatsApp files in the given date modified window (seconds).
+     * Uses RELATIVE_PATH or DISPLAY_NAME to narrow to WhatsApp paths. Returns list of candidates.
+     */
+    private fun queryMediaStoreCandidates(kind: MediaKind, minSeconds: Long, maxSeconds: Long): List<MediaCandidate> {
+        val results = mutableListOf<MediaCandidate>()
+
+        val projection = arrayOf(
+            MediaStore.MediaColumns._ID,
+            MediaStore.MediaColumns.DISPLAY_NAME,
+            MediaStore.MediaColumns.DATE_MODIFIED,
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) MediaStore.MediaColumns.RELATIVE_PATH else "_data"
+        )
+
+        val selectionBuilder = StringBuilder()
+        val selectionArgs = mutableListOf<String>()
+
+        // date range
+        selectionBuilder.append("${MediaStore.MediaColumns.DATE_MODIFIED} BETWEEN ? AND ?")
+        selectionArgs.add(minSeconds.toString())
+        selectionArgs.add(maxSeconds.toString())
+
+        // filter for WhatsApp in relative path or display name
+        // RELATIVE_PATH example: "Android/media/com.whatsapp/WhatsApp/Media/WhatsApp Images/"
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            selectionBuilder.append(" AND (${MediaStore.MediaColumns.RELATIVE_PATH} LIKE ? OR ${MediaStore.MediaColumns.DISPLAY_NAME} LIKE ?)")
+            selectionArgs.add("%WhatsApp%")
+            selectionArgs.add("%WA%") // many WA files contain WA in name (WA0001 etc)
+        } else {
+            // older devices: use display name fallback
+            selectionBuilder.append(" AND ${MediaStore.MediaColumns.DISPLAY_NAME} LIKE ?")
+            selectionArgs.add("%WA%")
         }
-    }
 
-    private fun getFileExtensionFromUri(uri: android.net.Uri): String? {
-        return try {
-            val mimeType = contentResolver.getType(uri)
-            when (mimeType) {
-                "image/jpeg" -> "jpg"
-                "image/png" -> "png"
-                "image/gif" -> "gif"
-                "image/webp" -> "webp"
-                "video/mp4" -> "mp4"
-                "video/3gpp" -> "3gp"
-                "audio/mpeg" -> "mp3"
-                "audio/ogg" -> "ogg"
-                "audio/mp4" -> "m4a"
-                "audio/opus" -> "opus"
-                "application/pdf" -> "pdf"
-                "application/msword" -> "doc"
-                "application/vnd.openxmlformats-officedocument.wordprocessingml.document" -> "docx"
-                else -> {
-                    val projection = arrayOf(android.provider.MediaStore.MediaColumns.DISPLAY_NAME)
-                    contentResolver.query(uri, projection, null, null, null)?.use { cursor ->
-                        if (cursor.moveToFirst()) {
-                            val displayName = cursor.getString(0)
-                            displayName?.substringAfterLast('.', "")?.takeIf { it.isNotEmpty() }
-                        } else null
-                    }
+        val selection = selectionBuilder.toString()
+        val uri = when (kind) {
+            MediaKind.IMAGE -> MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+            MediaKind.VIDEO -> MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+            MediaKind.AUDIO, MediaKind.DOCUMENT -> MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
+        }
+
+        var cursor: Cursor? = null
+        try {
+            cursor = contentResolver.query(
+                uri,
+                projection,
+                selection,
+                selectionArgs.toTypedArray(),
+                "${MediaStore.MediaColumns.DATE_MODIFIED} DESC" // recent first
+            )
+
+            if (cursor != null) {
+                val idCol = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns._ID)
+                val nameCol = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME)
+                val dateCol = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATE_MODIFIED)
+                while (cursor.moveToNext()) {
+                    val id = cursor.getLong(idCol)
+                    val displayName = cursor.getString(nameCol) ?: "file"
+                    val dateModified = cursor.getLong(dateCol)
+                    val itemUri = ContentUris.withAppendedId(uri, id)
+                    results.add(MediaCandidate(itemUri, displayName, dateModified))
                 }
             }
         } catch (e: Exception) {
-            Log.e("xyz", "Error getting file extension from URI", e)
-            null
+            Log.e(TAG, "MediaStore query failed", e)
+        } finally {
+            cursor?.close()
         }
+
+        return results
+    }
+
+    /**
+     * Copy a media Uri (from MediaStore) into app-specific external files dir and return absolute path.
+     */
+    private fun copyMediaToAppDir(sourceUri: Uri, displayName: String, kind: MediaKind, title: String, notificationTime: Long): String? {
+        var pfd: ParcelFileDescriptor? = null
+        var inStream: InputStream? = null
+        var outStream: FileOutputStream? = null
+        try {
+            pfd = contentResolver.openFileDescriptor(sourceUri, "r")
+            if (pfd == null) {
+                Log.w(TAG, "openFileDescriptor returned null for $sourceUri")
+                return null
+            }
+            inStream = android.os.ParcelFileDescriptor.AutoCloseInputStream(pfd)
+
+            // Prepare destination
+            val mediaRoot = getExternalFilesDir(null) ?: filesDir // fallback if external not available
+            val appMediaDir = File(mediaRoot, "NotiReader_WA_Media/${kind.directoryName}")
+            if (!appMediaDir.exists()) appMediaDir.mkdirs()
+
+            val ext = displayName.substringAfterLast('.', "")
+            val safeTitle = title.replace(Regex("[^A-Za-z0-9_]"), "_")
+            val destName = "${safeTitle}_${notificationTime}${if (ext.isNotBlank()) ".$ext" else ""}"
+            val destFile = File(appMediaDir, destName)
+
+            outStream = FileOutputStream(destFile)
+
+            val buffer = ByteArray(8 * 1024)
+            var read: Int
+            while (inStream.read(buffer).also { read = it } != -1) {
+                outStream.write(buffer, 0, read)
+            }
+            outStream.flush()
+            Log.d(TAG, "Copied media to ${destFile.absolutePath}")
+            return destFile.absolutePath
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to copy media", e)
+            return null
+        } finally {
+            try { inStream?.close() } catch (_: Exception) {}
+            try { outStream?.close() } catch (_: Exception) {}
+            try { pfd?.close() } catch (_: Exception) {}
+        }
+    }
+
+    override fun onNotificationRemoved(sbn: StatusBarNotification?) {
+        super.onNotificationRemoved(sbn)
+        if (sbn == null) return
+        if (sbn.packageName != "com.whatsapp") return
+
+        val title = sbn.notification.extras.getString("android.title") ?: ""
+        val message = sbn.notification.extras.getCharSequence("android.text")?.toString() ?: ""
+        val timeStamp = sbn.postTime
+
+        // preserve previous behavior: only handle REASON_APP_CANCEL
+        // Note: rankingMap/ reason version may vary by API; original code used reason param - but here we simply schedule marking deleted if this removal happens
+        scope.launch {
+            notiRepository.markMessageAsDeletedByDetails(title, message, timeStamp)
+        }
+    }
+
+    private enum class MediaKind(val directoryName: String) {
+        IMAGE("WhatsApp_Images"),
+        VIDEO("WhatsApp_Video"),
+        AUDIO("WhatsApp_Audio"),
+        DOCUMENT("WhatsApp_Documents")
     }
 }

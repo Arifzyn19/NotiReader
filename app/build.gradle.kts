@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.google.gms.google.services)
     alias(libs.plugins.dagger.hilt)
     id("com.google.devtools.ksp")
+    alias(libs.plugins.google.firebase.crashlytics)
 }
 
 android {
@@ -14,8 +15,8 @@ android {
         applicationId = "com.notireader.app"
         minSdk = 24
         targetSdk = 36
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "1.1"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         setProperty("archivesBaseName", "noti-reader")
     }
@@ -53,6 +54,7 @@ dependencies {
     implementation(libs.billing.ktx)
     implementation(libs.androidx.legacy.support.v4)
     implementation(libs.androidx.fragment.ktx)
+    implementation(libs.firebase.crashlytics)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

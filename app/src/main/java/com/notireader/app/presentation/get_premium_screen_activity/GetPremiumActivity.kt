@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
@@ -21,15 +22,17 @@ import com.android.billingclient.api.ProductDetails
 import com.android.billingclient.api.Purchase
 import com.android.billingclient.api.PurchasesUpdatedListener
 import com.android.billingclient.api.QueryProductDetailsParams
+import com.google.android.gms.common.util.CollectionUtils.listOf
+import com.google.common.collect.ImmutableList
 import com.notireader.app.databinding.ActivityGetPremiumBinding
 import com.notireader.app.presentation.main_screen_activity.MainActivity
 import com.notireader.app.util.PremiumManager
 
-
 class GetPremiumActivity : AppCompatActivity(), PurchasesUpdatedListener {
+
     private lateinit var billingClient: BillingClient
     private var premiumProductDetails: ProductDetails? = null
-    private var selectedOfferToken: String? = null
+    val TAG = "MyTag"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,17 +41,21 @@ class GetPremiumActivity : AppCompatActivity(), PurchasesUpdatedListener {
             return
         }
         enableEdgeToEdge()
+
         val binding = ActivityGetPremiumBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
         ViewCompat.setOnApplyWindowInsetsListener(binding.main) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
         binding.crossButton.visibility = View.INVISIBLE
+
         Handler(Looper.getMainLooper()).postDelayed({
             binding.crossButton.visibility = View.VISIBLE
         }, 1000)
+
         binding.crossButton.setOnClickListener {
             startActivity(Intent(this, MainActivity::class.java))
             finish()
@@ -61,35 +68,8 @@ class GetPremiumActivity : AppCompatActivity(), PurchasesUpdatedListener {
             }
         })
 
-        // Query product details and set offer token
-        fun queryPremiumProduct() {
-            val params = QueryProductDetailsParams.newBuilder()
-                .setProductList(
-                    listOf(
-                        QueryProductDetailsParams.Product.newBuilder()
-                            .setProductId("premium_subscription") // TODO: replace with your product ID
-                            .setProductType(BillingClient.ProductType.INAPP)
-                            .build()
-                    )
-                ).build()
-            billingClient.queryProductDetailsAsync(params) { billingResult, productDetailsList ->
-                if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
-                    val productDetails = productDetailsList.productDetailsList.firstOrNull()
-                    premiumProductDetails = productDetails
-                    // For one-time products:
-                    selectedOfferToken = productDetails?.oneTimePurchaseOfferDetails?.offerToken
-                    // For subscriptions, use:
-                    // selectedOfferToken = productDetails?.subscriptionOfferDetails?.get(0)?.offerToken
-                }
-            }
-        }
-
-        // BillingClient setup
-        val purchasesUpdatedListener = PurchasesUpdatedListener { billingResult, purchases ->
-            // To be implemented in a later section.
-        }
         billingClient = BillingClient.newBuilder(applicationContext)
-            .setListener(purchasesUpdatedListener)
+            .setListener(this)
             .enablePendingPurchases(
                 PendingPurchasesParams.newBuilder()
                     .enableOneTimeProducts()
@@ -97,45 +77,92 @@ class GetPremiumActivity : AppCompatActivity(), PurchasesUpdatedListener {
             )
             .enableAutoServiceReconnection()
             .build()
+
         billingClient.startConnection(object : BillingClientStateListener {
             override fun onBillingSetupFinished(billingResult: BillingResult) {
+                Log.d(TAG, "onBillingSetupFinished-responseCode: ${billingResult.responseCode}")
+                Log.d(TAG, "onBillingSetupFinished-debugMessage: ${billingResult.debugMessage}")
                 if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
                     queryPremiumProduct()
                 }
             }
 
             override fun onBillingServiceDisconnected() {
-                // TODO: try calling start connection method
+                Log.d(TAG, "onBillingServiceDisconnected: ")
             }
         })
 
         binding.getPremiumBtn.setOnClickListener {
-            if (premiumProductDetails == null || selectedOfferToken.isNullOrEmpty()) {
+            val product = premiumProductDetails
+            if (product == null) {
                 Toast.makeText(this, "Product details not loaded", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
-            val productDetailsParamsList = listOf(
-                ProductDetailsParams.newBuilder()
-                    .setProductDetails(premiumProductDetails!!)
-                    .setOfferToken(selectedOfferToken ?: "")
-                    .build()
-            )
-            val billingFlowParams = BillingFlowParams.newBuilder()
-                .setProductDetailsParamsList(productDetailsParamsList)
+
+            Log.d(TAG, "onCreate-subscriptionOfferDetails: ${product.subscriptionOfferDetails}")
+
+            val offerToken = product.subscriptionOfferDetails
+                ?.firstOrNull()  // take first offer
+                ?.offerToken
+
+            Log.d(TAG, "onCreate: $offerToken")
+
+            if (offerToken.isNullOrEmpty()) {
+                Toast.makeText(this, "No subscription offers available", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            val productDetailsParams = BillingFlowParams.ProductDetailsParams.newBuilder()
+                .setProductDetails(product)
+                .setOfferToken(offerToken)
                 .build()
 
-            val billingResult = billingClient.launchBillingFlow(this, billingFlowParams)
+            val billingFlowParams = BillingFlowParams.newBuilder()
+                .setProductDetailsParamsList(listOf(productDetailsParams))
+                .build()
+
+            val result = billingClient.launchBillingFlow(this, billingFlowParams)
+            Log.d(TAG, "launchBillingFlow result: $result")
+        }
+
+    }
+
+    fun queryPremiumProduct() {
+        val queryProductDetailsParams =
+            QueryProductDetailsParams.newBuilder()
+                .setProductList(
+                    ImmutableList.of(
+                        QueryProductDetailsParams.Product.newBuilder()
+                            .setProductId("purchase_349")
+                            .setProductType(BillingClient.ProductType.SUBS)
+                            .build()))
+                .build()
+
+        billingClient.queryProductDetailsAsync(queryProductDetailsParams) { billingResult, productDetailsList ->
+            Log.d(TAG, "queryPremiumProduct-responseCode: ${billingResult.responseCode}")
+            Log.d(TAG, "queryPremiumProduct-debugMessage: ${billingResult.debugMessage}")
+            Log.d(TAG, "queryPremiumProduct-productDetailsList: ${productDetailsList.productDetailsList}")
+            Log.d(TAG, "queryPremiumProduct-unfetchedProductList: ${productDetailsList.unfetchedProductList}")
+            if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
+                premiumProductDetails = productDetailsList.productDetailsList.firstOrNull()
+                Log.d(TAG, "queryPremiumProduct-premiumProductDetails: $premiumProductDetails")
+            }
         }
     }
 
-
-    override fun onPurchasesUpdated(billingResult: BillingResult, purchases: MutableList<Purchase>?) {
+    override fun onPurchasesUpdated(
+        billingResult: BillingResult,
+        purchases: MutableList<Purchase>?
+    ) {
+        Log.d(TAG, "onPurchasesUpdated: $billingResult")
+        Log.d(TAG, "onPurchasesUpdated: $purchases")
         if (billingResult.responseCode == BillingClient.BillingResponseCode.OK && purchases != null) {
             for (purchase in purchases) {
                 if (purchase.purchaseState == Purchase.PurchaseState.PURCHASED && !purchase.isAcknowledged) {
-                    val acknowledgeParams = com.android.billingclient.api.AcknowledgePurchaseParams.newBuilder()
-                        .setPurchaseToken(purchase.purchaseToken)
-                        .build()
+                    val acknowledgeParams =
+                        com.android.billingclient.api.AcknowledgePurchaseParams.newBuilder()
+                            .setPurchaseToken(purchase.purchaseToken)
+                            .build()
                     billingClient.acknowledgePurchase(acknowledgeParams) { ackResult ->
                         if (ackResult.responseCode == BillingClient.BillingResponseCode.OK) {
                             PremiumManager.setPremiumUnlocked(this, true)

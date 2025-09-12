@@ -1,5 +1,6 @@
 package com.notireader.app.presentation.view_chat_screen_activity
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -34,6 +35,7 @@ class ViewChatAdapter(private val messages: List<MessageModel>) : RecyclerView.A
 
             if (mediaPath != null) {
                 val lower = mediaPath.lowercase()
+                Log.d("MyTag", "bind: $lower")
                 when {
                     lower.endsWith(".jpg") || lower.endsWith(".jpeg") || lower.endsWith(".png") || lower.endsWith(".webp") -> {
                         binding.mediaImageView.visibility = View.VISIBLE
