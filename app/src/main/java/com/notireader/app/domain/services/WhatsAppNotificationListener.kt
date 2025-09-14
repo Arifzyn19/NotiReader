@@ -1,9 +1,6 @@
 package com.notireader.app.domain.services
 
-import android.app.Service
 import android.content.ContentUris
-import android.content.ContentValues
-import android.content.Intent
 import android.database.Cursor
 import android.net.Uri
 import android.os.Build
@@ -16,8 +13,10 @@ import androidx.annotation.WorkerThread
 import com.notireader.app.domain.models.MessageModel
 import com.notireader.app.domain.repository.NotiRepository
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.*
-import org.checkerframework.checker.regex.qual.Regex
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
@@ -52,8 +51,8 @@ class WhatsAppNotificationListener : NotificationListenerService() {
         if (pkg != "com.whatsapp" && pkg != "com.whatsapp.w4b") return
 
         val extras = sbn.notification.extras
-        val title = extras.getString("android.title") ?: ""
-        val message = extras.getCharSequence("android.text")?.toString() ?: ""
+        var title = extras.getString("android.title") ?: ""
+        var message = extras.getCharSequence("android.text")?.toString() ?: ""
         val timeStamp = sbn.postTime ?: System.currentTimeMillis()
 
         // Basic filtering (same as before)
@@ -75,6 +74,19 @@ class WhatsAppNotificationListener : NotificationListenerService() {
             return
         }
         recentHandled[dedupeKey] = System.currentTimeMillis()
+
+        if (":" in title) {
+            val parts = title.split(":", limit = 2)
+            if (parts.size == 2) {
+                val groupName = parts[0].replace(Regex("\\(\\d+\\s+messages?\\)", RegexOption.IGNORE_CASE), "").trim()
+                val senderName = parts[1].trim()
+                // Ensure message includes the sender name
+                message = if (message.startsWith(senderName)) message else "$senderName: $message"
+                title = groupName
+            }
+        } else if (title.contains("(") && title.contains("new messages", ignoreCase = true)) {
+            title = title.replace(Regex("\\(.*new messages.*\\)", RegexOption.IGNORE_CASE), "").trim()
+        }
 
         // Determine media type (Image/Video/Audio/Document/Sticker/GIF)
         val mediaTypes = mapOf(
@@ -118,11 +130,6 @@ class WhatsAppNotificationListener : NotificationListenerService() {
         }
     }
 
-    /**
-     * Attempts to find the best matching media file in MediaStore for WhatsApp and copy
-     * it into the app-specific external files dir. Returns the copied file absolute path
-     * (String) or null when none found.
-     */
     @WorkerThread
     private fun findAndCopyWhatsAppMedia(kind: MediaKind?, notificationTime: Long, title: String): String? {
         if (kind == null) {
@@ -150,6 +157,7 @@ class WhatsAppNotificationListener : NotificationListenerService() {
                     kotlin.math.abs(candidate.dateModified - notificationTimeSeconds)
                 }
                 best?.let {
+                    Log.d(TAG, "best matched file: ${it.uri}")
                     return copyMediaToAppDir(it.uri, it.displayName, kind, title, notificationTime)
                 }
             }
@@ -174,10 +182,6 @@ class WhatsAppNotificationListener : NotificationListenerService() {
 
     private data class MediaCandidate(val uri: Uri, val displayName: String, val dateModified: Long)
 
-    /**
-     * Query MediaStore for WhatsApp files in the given date modified window (seconds).
-     * Uses RELATIVE_PATH or DISPLAY_NAME to narrow to WhatsApp paths. Returns list of candidates.
-     */
     private fun queryMediaStoreCandidates(kind: MediaKind, minSeconds: Long, maxSeconds: Long): List<MediaCandidate> {
         val results = mutableListOf<MediaCandidate>()
 
@@ -246,9 +250,6 @@ class WhatsAppNotificationListener : NotificationListenerService() {
         return results
     }
 
-    /**
-     * Copy a media Uri (from MediaStore) into app-specific external files dir and return absolute path.
-     */
     private fun copyMediaToAppDir(sourceUri: Uri, displayName: String, kind: MediaKind, title: String, notificationTime: Long): String? {
         var pfd: ParcelFileDescriptor? = null
         var inStream: InputStream? = null
@@ -285,9 +286,18 @@ class WhatsAppNotificationListener : NotificationListenerService() {
             Log.e(TAG, "Failed to copy media", e)
             return null
         } finally {
-            try { inStream?.close() } catch (_: Exception) {}
-            try { outStream?.close() } catch (_: Exception) {}
-            try { pfd?.close() } catch (_: Exception) {}
+            try {
+                inStream?.close()
+            } catch (_: Exception) {
+            }
+            try {
+                outStream?.close()
+            } catch (_: Exception) {
+            }
+            try {
+                pfd?.close()
+            } catch (_: Exception) {
+            }
         }
     }
 
@@ -300,8 +310,6 @@ class WhatsAppNotificationListener : NotificationListenerService() {
         val message = sbn.notification.extras.getCharSequence("android.text")?.toString() ?: ""
         val timeStamp = sbn.postTime
 
-        // preserve previous behavior: only handle REASON_APP_CANCEL
-        // Note: rankingMap/ reason version may vary by API; original code used reason param - but here we simply schedule marking deleted if this removal happens
         scope.launch {
             notiRepository.markMessageAsDeletedByDetails(title, message, timeStamp)
         }
