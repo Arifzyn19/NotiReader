@@ -54,13 +54,12 @@ class WhatsAppNotificationListener : NotificationListenerService() {
         val extras = sbn.notification.extras
         var title = extras.getString("android.title") ?: ""
         var message = extras.getCharSequence("android.text")?.toString() ?: ""
-        val timeStamp = sbn.postTime ?: System.currentTimeMillis()
+        val timeStamp = sbn.postTime
 
-        // Basic filtering (same as before)
+        // message filtering
         val newMsgRegex = Regex("\\d+ new messages", RegexOption.IGNORE_CASE)
-        if (newMsgRegex.containsMatchIn(title) || title.equals("WhatsApp", ignoreCase = true) || title.equals(
-                "Backup in progress",
-                ignoreCase = true
+        if (newMsgRegex.containsMatchIn(title) || newMsgRegex.containsMatchIn(message) || title.equals("WhatsApp", ignoreCase = true) || title.equals(
+                "Backup in progress", ignoreCase = true
             )
         ) {
             Log.d(TAG, "Filtered summary/new messages")
@@ -116,19 +115,16 @@ class WhatsAppNotificationListener : NotificationListenerService() {
         }
 
         scope.launch {
-            delay(3000) // let the media download
+            val mediaCount = parseMediaCount(message)
+            val waitTime = if (mediaCount > 1) (mediaCount * 1000L) else 3000L
+            delay(waitTime) // let the media download
             try {
-                val mediaUriString = findAndCopyWhatsAppMedia(matchedKind, timeStamp, title)
+                val mediaPaths = findAndCopyWhatsAppMedia(matchedKind, timeStamp, title, mediaCount)
                 val messageModel = MessageModel(
-                    sender = title,
-                    message = message,
-                    timestamp = timeStamp,
-                    isDeleted = false,
-                    mediaPath = mediaUriString,
-                    sourcePackage = pkg,
-                    iconRes = sbn.notification.largeIcon
+                    sender = title, message = message, timestamp = timeStamp, isDeleted = false, mediaPaths = emptyList(), // populated later
+                    sourcePackage = pkg, iconRes = sbn.notification.largeIcon
                 )
-                notiRepository.onWhatsAppNotificationReceived(messageModel)
+                notiRepository.onWhatsAppNotificationReceivedWithMedia(messageModel, mediaPaths)
                 Log.d(TAG, "Processed notification: $messageModel")
             } catch (t: Throwable) {
                 Log.e(TAG, "Error handling notification", t)
@@ -137,16 +133,16 @@ class WhatsAppNotificationListener : NotificationListenerService() {
     }
 
     @WorkerThread
-    private fun findAndCopyWhatsAppMedia(kind: MediaKind?, notificationTime: Long, title: String): String? {
+    private fun findAndCopyWhatsAppMedia(kind: MediaKind?, notificationTime: Long, title: String, count: Int): List<String> {
         if (kind == null) {
             Log.d(TAG, "No media type matched in notification")
-            return null
+            return emptyList()
         }
 
         // Ensure we have READ_MEDIA permissions. The host app is expected to handle permission flow.
         if (!hasRequiredMediaPermission(kind)) {
             Log.w(TAG, "Missing required READ_MEDIA permission for $kind")
-            return null
+            return emptyList()
         }
 
         // Query window (seconds). Start with +/- 120s then expand to +/- 1 day if not found.
@@ -159,18 +155,47 @@ class WhatsAppNotificationListener : NotificationListenerService() {
             val candidates = queryMediaStoreCandidates(kind, min, max)
             if (candidates.isNotEmpty()) {
                 // pick candidate whose DATE_MODIFIED is closest to notificationTimeSeconds
-                val best = candidates.minByOrNull { candidate ->
-                    kotlin.math.abs(candidate.dateModified - notificationTimeSeconds)
+//                val best = candidates.minByOrNull { candidate ->
+//                    kotlin.math.abs(candidate.dateModified - notificationTimeSeconds)
+//                }
+//                best?.let {
+//                    Log.d(TAG, "best matched file: ${it.uri}")
+//                    return copyMediaToAppDir(it.uri, it.displayName, kind, title, notificationTime)
+//                }
+                // Sort by latest first
+                val sorted = candidates.sortedByDescending { it.dateModified }
+
+                // Take required count
+                val selected = sorted.take(count)
+
+                val copied = selected.mapNotNull {
+                    copyMediaToAppDir(it.uri, it.displayName, kind, title, notificationTime)
                 }
-                best?.let {
-                    Log.d(TAG, "best matched file: ${it.uri}")
-                    return copyMediaToAppDir(it.uri, it.displayName, kind, title, notificationTime)
-                }
+
+                if (copied.isNotEmpty()) return copied
             }
         }
 
         Log.d(TAG, "No matching WhatsApp media found for kind=$kind")
-        return null
+        return emptyList()
+    }
+
+    private fun parseMediaCount(message: String): Int {
+        val regex = Regex("(\\d+)\\s+(photos?|videos?|audios?|documents?|media)", RegexOption.IGNORE_CASE)
+        val match = regex.find(message)
+        if (match != null) {
+            return match.groups[1]?.value?.toIntOrNull() ?: 1
+        }
+
+        // Also check for emoji patterns
+        val emojiRegex = Regex("[📷📹🎵📄]\\s*(\\d+)\\s+(photos?|videos?|audios?|documents?)", RegexOption.IGNORE_CASE)
+        val emojiMatch = emojiRegex.find(message)
+        if (emojiMatch != null) {
+            return emojiMatch.groups[1]?.value?.toIntOrNull() ?: 1
+        }
+
+        Log.d(TAG, "parseMediaCount for message: '$message' -> returning 1")
+        return 1
     }
 
     private fun hasRequiredMediaPermission(kind: MediaKind): Boolean {
@@ -228,11 +253,7 @@ class WhatsAppNotificationListener : NotificationListenerService() {
         var cursor: Cursor? = null
         try {
             cursor = contentResolver.query(
-                uri,
-                projection,
-                selection,
-                selectionArgs.toTypedArray(),
-                "${MediaStore.MediaColumns.DATE_MODIFIED} DESC" // recent first
+                uri, projection, selection, selectionArgs.toTypedArray(), "${MediaStore.MediaColumns.DATE_MODIFIED} DESC" // recent first
             )
 
             if (cursor != null) {
@@ -322,9 +343,6 @@ class WhatsAppNotificationListener : NotificationListenerService() {
     }
 
     private enum class MediaKind(val directoryName: String) {
-        IMAGE("WhatsApp_Images"),
-        VIDEO("WhatsApp_Video"),
-        AUDIO("WhatsApp_Audio"),
-        DOCUMENT("WhatsApp_Documents")
+        IMAGE("WhatsApp_Images"), VIDEO("WhatsApp_Video"), AUDIO("WhatsApp_Audio"), DOCUMENT("WhatsApp_Documents")
     }
 }

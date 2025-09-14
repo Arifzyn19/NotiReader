@@ -8,8 +8,8 @@ import androidx.room.TypeConverters
 import com.notireader.app.data.mappers.Converters
 
 @Database(
-    entities = [MessageEntity::class],
-    version = 6,
+    entities = [MessageEntity::class, MediaEntity::class],
+    version = 7,
     exportSchema = false
 )
 @TypeConverters(Converters::class)

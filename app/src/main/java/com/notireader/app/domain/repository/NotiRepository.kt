@@ -13,4 +13,5 @@ interface NotiRepository {
     suspend fun isDuplicateMessage(sender: String, message: String, timestamp: Long): Boolean
     suspend fun markMessageAsRead(sender: String)
     fun countUnreadMessagesForSender(sender: String): LiveData<Int>
+    suspend fun onWhatsAppNotificationReceivedWithMedia(message: MessageModel, mediaPaths: List<String> = emptyList())
 }

@@ -22,6 +22,8 @@ import kotlinx.coroutines.launch
 class ViewChatActivity : AppCompatActivity() {
     private val viewModel: ViewChatViewModel by viewModels()
     private lateinit var binding: ActivityViewChatBinding
+    private lateinit var adapter: ViewChatAdapter
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -36,8 +38,13 @@ class ViewChatActivity : AppCompatActivity() {
         val senderName = intent.getStringExtra("sender_name") ?: ""
         binding.senderTitle.text = senderName
         binding.messageRecyclerView.layoutManager = LinearLayoutManager(this)
+
+        // Initialize adapter once
+        adapter = ViewChatAdapter()
+        binding.messageRecyclerView.adapter = adapter
+
         viewModel.getMessagesForSender(senderName).observe(this, Observer { messages ->
-            binding.messageRecyclerView.adapter = ViewChatAdapter(messages)
+            adapter.updateMessages(messages)
         })
         lifecycleScope.launch {
             viewModel.markMessagesAsRead(senderName)
