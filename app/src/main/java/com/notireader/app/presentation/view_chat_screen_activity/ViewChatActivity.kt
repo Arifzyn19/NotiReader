@@ -1,10 +1,7 @@
 package com.notireader.app.presentation.view_chat_screen_activity
 
 import android.os.Bundle
-import android.os.Handler
-import android.util.Log
 import android.view.View
-import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -57,12 +54,12 @@ class ViewChatActivity : AppCompatActivity() {
         super.onStart()
         if (!PremiumManager.isPremiumUnlocked(this)) {
             // TODO: for development purposes
-//            AdManager.show(
-//                context = this,
-//                adType = AdType.INTERSTITIAL,
-//                container = binding.adViewBanner,
-//                options = AdOptionsModel()
-//            )
+            AdManager.show(
+                context = this,
+                adType = AdType.INTERSTITIAL,
+                container = binding.adViewBanner,
+                options = AdOptionsModel()
+            )
         }
     }
 
@@ -70,12 +67,12 @@ class ViewChatActivity : AppCompatActivity() {
         super.onResume()
         if (!PremiumManager.isPremiumUnlocked(this)) {
             // TODO: for development purposes
-//            AdManager.show(
-//                context = this,
-//                adType = AdType.BANNER,
-//                container = binding.adViewBanner,
-//                options = AdOptionsModel()
-//            )
+            AdManager.show(
+                context = this,
+                adType = AdType.BANNER,
+                container = binding.adViewBanner,
+                options = AdOptionsModel()
+            )
         }
     }
 }

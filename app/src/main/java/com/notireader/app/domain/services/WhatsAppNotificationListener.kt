@@ -16,6 +16,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
@@ -57,7 +58,11 @@ class WhatsAppNotificationListener : NotificationListenerService() {
 
         // Basic filtering (same as before)
         val newMsgRegex = Regex("\\d+ new messages", RegexOption.IGNORE_CASE)
-        if (newMsgRegex.containsMatchIn(title) || newMsgRegex.containsMatchIn(message) || title.equals("WhatsApp", ignoreCase = true)) {
+        if (newMsgRegex.containsMatchIn(title) || title.equals("WhatsApp", ignoreCase = true) || title.equals(
+                "Backup in progress",
+                ignoreCase = true
+            )
+        ) {
             Log.d(TAG, "Filtered summary/new messages")
             return
         }
@@ -111,6 +116,7 @@ class WhatsAppNotificationListener : NotificationListenerService() {
         }
 
         scope.launch {
+            delay(3000) // let the media download
             try {
                 val mediaUriString = findAndCopyWhatsAppMedia(matchedKind, timeStamp, title)
                 val messageModel = MessageModel(
@@ -144,7 +150,7 @@ class WhatsAppNotificationListener : NotificationListenerService() {
         }
 
         // Query window (seconds). Start with +/- 120s then expand to +/- 1 day if not found.
-        val windows = listOf(120L, 600L, 86_400L) // seconds
+        val windows = listOf(2L, 5L, 10L, 120L, 600L, 86_400L) // seconds
         val notificationTimeSeconds = notificationTime / 1000L
 
         for (window in windows) {

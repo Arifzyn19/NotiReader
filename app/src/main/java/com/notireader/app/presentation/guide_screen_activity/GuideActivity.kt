@@ -68,12 +68,12 @@ class GuideActivity : AppCompatActivity() {
         val isPremium = PremiumManager.isPremiumUnlocked(this)
         if (!isPremium) {
             // TODO: for development purposes
-//            AdManager.show(
-//                context = this,
-//                adType = AdType.INTERSTITIAL,
-//                container = binding.adViewBanner,
-//                options = AdOptionsModel()
-//            )
+            AdManager.show(
+                context = this,
+                adType = AdType.INTERSTITIAL,
+                container = binding.adViewBanner,
+                options = AdOptionsModel()
+            )
         }
     }
 
@@ -82,12 +82,12 @@ class GuideActivity : AppCompatActivity() {
         val isPremium = PremiumManager.isPremiumUnlocked(this)
         if (!isPremium) {
             // TODO: for development purposes
-//            AdManager.show(
-//                context = this,
-//                adType = AdType.BANNER,
-//                container = binding.adViewBanner,
-//                options = AdOptionsModel()
-//            )
+            AdManager.show(
+                context = this,
+                adType = AdType.BANNER,
+                container = binding.adViewBanner,
+                options = AdOptionsModel()
+            )
         }
     }
 
