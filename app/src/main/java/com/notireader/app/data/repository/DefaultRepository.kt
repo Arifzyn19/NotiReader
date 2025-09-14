@@ -19,10 +19,8 @@ class DefaultRepository(
     private val mutex = Mutex()
 
     override fun getAllMessages(): LiveData<List<MessageModel>> {
-        return messageDao.getAllMessages().map { messageEntities ->
-            messageEntities.map { messageEntity ->
-                messageEntity.toMessageModel()
-            }
+        return messageDao.getAllMessagesWithMedia().map { messageWithMediaList ->
+            messageWithMediaList.map { it.toMessageModel() }
         }
     }
 
@@ -36,7 +34,8 @@ class DefaultRepository(
 
     override suspend fun insertMessage(message: MessageModel) {
         withContext(Dispatchers.IO) {
-            messageDao.insertMessage(message.toMessageEntity())
+            val messageEntity = message.toMessageEntity()
+            messageDao.insertMessageWithMedia(messageEntity, message.mediaPaths)
         }
     }
 
@@ -59,20 +58,37 @@ class DefaultRepository(
     }
 
     override fun getMessagesForSender(sender: String): LiveData<List<MessageModel>> {
-        return messageDao.getMessagesForSender(sender).map { messageEntities ->
-            messageEntities.map { it.toMessageModel() }
+        return messageDao.getMessagesWithMediaForSender(sender).map { messageWithMediaList ->
+            messageWithMediaList.map { it.toMessageModel() }
         }
     }
 
     override fun getMessagesForPackage(sourcePackage: String): LiveData<List<MessageModel>> {
-        return messageDao.getMessagesForPackage(sourcePackage).map { messageEntities ->
-            messageEntities.map { it.toMessageModel() }
+        return messageDao.getMessagesWithMediaForPackage(sourcePackage).map { messageWithMediaList ->
+            messageWithMediaList.map { it.toMessageModel() }
         }
     }
 
     override suspend fun isDuplicateMessage(sender: String, message: String, timestamp: Long): Boolean {
         return withContext(Dispatchers.IO) {
             messageDao.countSimilarMessages(sender, message, timestamp) > 0
+        }
+    }
+
+
+    override suspend fun onWhatsAppNotificationReceivedWithMedia(message: MessageModel, mediaPaths: List<String>) {
+        Log.d("xyz", "onWhatsAppNotificationReceivedWithMedia: $message, mediaPaths: $mediaPaths")
+        val isDuplicate = mutex.withLock {
+            messageDao.countSimilarMessages(message.sender, message.message, message.timestamp) > 0
+        }
+        if (!isDuplicate) {
+            withContext(Dispatchers.IO) {
+                val messageEntity = message.toMessageEntity()
+                messageDao.insertMessageWithMedia(messageEntity, mediaPaths)
+            }
+            Log.d("xyz", "Message with media inserted: $message")
+        } else {
+            Log.d("xyz", "Duplicate message detected, skipping insert: $message")
         }
     }
 }

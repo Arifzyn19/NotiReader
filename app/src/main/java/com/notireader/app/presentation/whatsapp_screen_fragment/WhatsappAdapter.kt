@@ -40,9 +40,15 @@ class WhatsappAdapter(
             } ?: binding.profilePicture.setImageResource(R.drawable.ic_user)
             getUnreadCount(message.sender) { count ->
                 binding.numberOfUnReads.text = count.toString()
-                binding.numberOfUnReads.visibility = if (count > 0) View.VISIBLE else View.GONE
+                if (count > 0) {
+                    binding.numberOfUnReads.visibility = View.VISIBLE
+                    binding.latestTime.setTextColor(binding.root.context.getColor(R.color.whatsapp_primary_green))
+                } else {
+                    binding.numberOfUnReads.visibility = View.GONE
+                    binding.latestTime.setTextColor(binding.root.context.getColor(R.color.muted_silver))
+                }
             }
-            binding.latestTime.text = TimeUtils.formatTimestamp(message.timestamp, TimeUtils.TIME)
+            binding.latestTime.text = TimeUtils.formatSmartTimestamp(message.timestamp)
             binding.latestMessage.text = message.message
             binding.root.setOnClickListener { onClick(message.sender) }
         }

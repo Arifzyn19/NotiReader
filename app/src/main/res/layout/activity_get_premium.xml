@@ -237,8 +237,8 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text=" / month"
-                        android:textSize="16sp" />
+                        android:text="Month"
+                        android:textSize="14sp" />
 
                 </LinearLayout>
 
@@ -327,6 +327,7 @@
         <ImageView
             android:id="@+id/cross_button"
             android:layout_width="24dp"
+            android:layout_marginTop="6dp"
             android:layout_height="24dp"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"

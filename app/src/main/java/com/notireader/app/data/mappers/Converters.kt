@@ -18,4 +18,14 @@ class Converters {
     fun toBitmap(bytes: ByteArray?): Bitmap? {
         return if (bytes == null) null else BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
     }
+
+    @TypeConverter
+    fun fromList(list: List<String>?): String? {
+        return list?.joinToString("||") // join with separator
+    }
+
+    @TypeConverter
+    fun toList(data: String?): List<String>? {
+        return data?.split("||")?.filter { it.isNotEmpty() }
+    }
 }

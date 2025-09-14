@@ -1,10 +1,7 @@
 package com.notireader.app.presentation.view_chat_screen_activity
 
 import android.os.Bundle
-import android.os.Handler
-import android.util.Log
 import android.view.View
-import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -25,6 +22,8 @@ import kotlinx.coroutines.launch
 class ViewChatActivity : AppCompatActivity() {
     private val viewModel: ViewChatViewModel by viewModels()
     private lateinit var binding: ActivityViewChatBinding
+    private lateinit var adapter: ViewChatAdapter
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -39,8 +38,13 @@ class ViewChatActivity : AppCompatActivity() {
         val senderName = intent.getStringExtra("sender_name") ?: ""
         binding.senderTitle.text = senderName
         binding.messageRecyclerView.layoutManager = LinearLayoutManager(this)
+
+        // Initialize adapter once
+        adapter = ViewChatAdapter()
+        binding.messageRecyclerView.adapter = adapter
+
         viewModel.getMessagesForSender(senderName).observe(this, Observer { messages ->
-            binding.messageRecyclerView.adapter = ViewChatAdapter(messages)
+            adapter.updateMessages(messages)
         })
         lifecycleScope.launch {
             viewModel.markMessagesAsRead(senderName)
@@ -57,12 +61,12 @@ class ViewChatActivity : AppCompatActivity() {
         super.onStart()
         if (!PremiumManager.isPremiumUnlocked(this)) {
             // TODO: for development purposes
-//            AdManager.show(
-//                context = this,
-//                adType = AdType.INTERSTITIAL,
-//                container = binding.adViewBanner,
-//                options = AdOptionsModel()
-//            )
+            AdManager.show(
+                context = this,
+                adType = AdType.INTERSTITIAL,
+                container = binding.adViewBanner,
+                options = AdOptionsModel()
+            )
         }
     }
 
@@ -70,12 +74,12 @@ class ViewChatActivity : AppCompatActivity() {
         super.onResume()
         if (!PremiumManager.isPremiumUnlocked(this)) {
             // TODO: for development purposes
-//            AdManager.show(
-//                context = this,
-//                adType = AdType.BANNER,
-//                container = binding.adViewBanner,
-//                options = AdOptionsModel()
-//            )
+            AdManager.show(
+                context = this,
+                adType = AdType.BANNER,
+                container = binding.adViewBanner,
+                options = AdOptionsModel()
+            )
         }
     }
 }
