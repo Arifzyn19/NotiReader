@@ -3,7 +3,7 @@ name: Build Android App (Kotlin)
 on:
   push:
     branches:
-      - main
+      - master
       - develop
   pull_request:
 
